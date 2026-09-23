@@ -1,0 +1,150 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens as RGB channels so Tailwind can apply opacity. */
+:root {
+  --background: 246 247 249;
+  --surface: 255 255 255;
+  --surface-secondary: 240 242 245;
+  --text: 17 20 26;
+  --text-muted: 92 99 112;
+  --border: 222 226 232;
+  --accent: 37 99 235;
+  --accent-fg: 255 255 255;
+  --success: 22 128 61;
+  --warning: 180 100 0;
+  --error: 200 38 38;
+  --info: 37 99 235;
+  --radius: 8px;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 1px 3px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 10px 30px rgb(0 0 0 / 0.12), 0 2px 6px rgb(0 0 0 / 0.08);
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --background: 13 15 19;
+  --surface: 22 25 31;
+  --surface-secondary: 30 34 42;
+  --text: 232 235 240;
+  --text-muted: 152 160 174;
+  --border: 45 50 60;
+  --accent: 96 145 255;
+  --accent-fg: 10 12 16;
+  --success: 74 196 120;
+  --warning: 240 170 60;
+  --error: 248 100 100;
+  --info: 96 145 255;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.5);
+  color-scheme: dark;
+}
+
+[data-accent='teal'] { --accent: 13 148 136; }
+[data-accent='violet'] { --accent: 109 40 217; }
+[data-accent='orange'] { --accent: 194 65 12; }
+[data-theme='dark'][data-accent='teal'] { --accent: 45 212 191; }
+[data-theme='dark'][data-accent='violet'] { --accent: 167 139 250; }
+[data-theme='dark'][data-accent='orange'] { --accent: 251 146 60; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  @apply bg-bg text-fg font-sans antialiased;
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+/* Visible, consistent keyboard focus. */
+:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: rgb(var(--accent) / 0.25);
+}
+
+@layer components {
+  .card {
+    @apply bg-surface border border-line rounded-lg;
+    box-shadow: var(--shadow);
+  }
+  .input {
+    @apply w-full min-h-[40px] rounded-md border border-line bg-surface px-3 py-2 text-sm text-fg placeholder:text-muted/70
+      focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent disabled:opacity-60;
+  }
+  .label {
+    @apply block text-xs font-medium text-muted mb-1.5 uppercase tracking-wide;
+  }
+  .textarea {
+    @apply input font-mono text-[13px] leading-relaxed resize-y min-h-[160px];
+  }
+  .kbd {
+    @apply inline-flex items-center rounded border border-line bg-surface2 px-1.5 text-[11px] font-mono text-muted;
+  }
+  .link {
+    @apply text-accent hover:underline underline-offset-2;
+  }
+  .section-title {
+    @apply text-sm font-semibold text-fg mb-3;
+  }
+}
+
+/* Checkerboard behind transparent image previews. */
+.checker {
+  background-color: rgb(var(--surface));
+  background-image: linear-gradient(45deg, rgb(var(--surface-secondary)) 25%, transparent 25%),
+    linear-gradient(-45deg, rgb(var(--surface-secondary)) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgb(var(--surface-secondary)) 75%),
+    linear-gradient(-45deg, transparent 75%, rgb(var(--surface-secondary)) 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}
+
+@keyframes ds-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ds-slide-up {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}
+@keyframes ds-indeterminate {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+.animate-in { animation: ds-fade-in 160ms ease-out; }
+.animate-sheet { animation: ds-slide-up 200ms ease-out; }
+.indeterminate { animation: ds-indeterminate 1.2s ease-in-out infinite; }
+
+/* Reduced motion: honour the OS setting, or the in-app override. */
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion='on']) *,
+  html:not([data-motion='on']) *::before,
+  html:not([data-motion='on']) *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+html[data-motion='off'] *,
+html[data-motion='off'] *::before,
+html[data-motion='off'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Safe-area padding for phones with notches / home indicators. */
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+/* Swipeable chip rows: keep them scrollable but hide the scrollbar. */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
