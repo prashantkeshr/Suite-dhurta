@@ -115,6 +115,7 @@ export function FileActions({ files, onClear }: { files: File[]; onClear: () => 
                 <Button key={tool.id} onClick={() => open(tool)} icon={<Icon name={tool.icon} size={16} />} className="h-auto min-h-[40px] py-1.5">
                   {tool.actionLabel ?? tool.name}
                   {tool.status !== 'available' && <StatusBadge status={tool.status} />}
+                  {tool.processing === 'external' && <span className="text-[10.5px] font-semibold uppercase text-warning">External</span>}
                 </Button>
               ))}
             </div>

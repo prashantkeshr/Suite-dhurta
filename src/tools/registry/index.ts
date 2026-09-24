@@ -114,6 +114,8 @@ export function formatLabel(types: string[]): string {
     'image/heic': 'HEIC',
     'image/heif': 'HEIF',
     'application/pdf': 'PDF',
+    'image/vnd.adobe.photoshop': 'PSD',
+    'image/x-icon': 'ICO',
     'application/json': 'JSON',
     'application/zip': 'ZIP',
     'text/csv': 'CSV',

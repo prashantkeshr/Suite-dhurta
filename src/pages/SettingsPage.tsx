@@ -140,6 +140,12 @@ export default function SettingsPage() {
             label="Keep local history"
             description="Records tool names and short summaries (never file contents) in this browser. Turning it off also clears it."
           />
+          <Toggle
+            checked={settings.photopeaAutoLoad}
+            onChange={(v) => updateSettings({ photopeaAutoLoad: v })}
+            label="Load Photopea without asking"
+            description="Photopea is an external editor from photopea.com. When off, you are asked before it loads."
+          />
           <div className="flex flex-wrap gap-2">
             <Button
               onClick={() => {

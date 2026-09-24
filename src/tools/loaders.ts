@@ -34,6 +34,7 @@ export const TOOL_LOADERS: Record<string, Loader> = {
   'image-cropper': () => import('./image/ImageCropTool'),
   'image-watermark': () => import('./image/ImageWatermarkTool'),
   'favicon-generator': () => import('./image/FaviconTool'),
+  'photopea': () => import('./image/PhotopeaTool'),
   'image-info': () => import('./image/ImageInfoTool'),
   'image-to-base64': () => import('./image/ImageBase64Tool'),
   'base64-to-image': () => import('./image/ImageBase64Tool'),

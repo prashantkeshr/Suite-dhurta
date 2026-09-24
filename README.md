@@ -8,11 +8,11 @@ A privacy-first productivity suite that runs entirely in the browser. Images, PD
 
 ## Status
 
-Phases 1 (foundation), 2 (images), 3 (PDF core) and 4 (text & data) are complete, plus working tools pulled forward from later phases — 70 tools in total:
+Phases 1 (foundation), 2 (images), 3 (PDF core) and 4 (text & data) are complete, plus working tools pulled forward from later phases — 71 tools in total:
 
 | Area | Available now | Coming soon |
 |---|---|---|
-| Images | Resize, convert (JPEG/PNG/WebP + fixed-pair converters), compress, rotate, flip, crop, watermark (text in any script or logo), favicon/ICO generator, SVG→PNG (beta), info, Base64 ↔ image — batch + ZIP | HEIC, background removal, Photopea (external) |
+| Images | Resize, convert (JPEG/PNG/WebP + fixed-pair converters), compress, rotate, flip, crop, watermark (text in any script or logo), favicon/ICO generator, SVG→PNG (beta), info, Base64 ↔ image — batch + ZIP. **Photopea** full image editor (clearly labelled external service, loads only after consent; fit / full-window / fullscreen; open files in and save PNG/JPG/WebP/PSD back via Photopea’s postMessage API) | HEIC, background removal |
 | PDF | Page thumbnails (pdf.js), merge, split/extract, rotate, delete, organize (reorder/duplicate/blank pages), watermark (incl. Hindi), page numbers, visual signature, PDF → image, PDF → text, metadata view/strip, image → PDF | Compress, password protect, compare, OCR, Office conversions |
 | Text & documents | Word/character counter (Hindi-aware), case converter, line cleaner, find & replace, slug, lorem ipsum, text diff (lines/words/chars, .patch export), Markdown editor (sanitised preview, HTML export), Markdown → PDF and Text → PDF (browser print engine, Hindi supported) | Rich text editor |
 | Developer | JSON format/validate/minify + tree view, YAML ↔ JSON, XML format/validate/minify, code formatter (Prettier: HTML/CSS/SCSS/Less/JS/TS/JSON/Markdown/YAML/GraphQL; SQL with dialects), Base64, URL, HTML entities, URL/UTM parser, JWT decoder, regex tester, colour + contrast, HTTP header parser + security checklist, user-agent info (beta), CSS gradient and box-shadow generators | Code minifier |

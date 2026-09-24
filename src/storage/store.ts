@@ -14,6 +14,8 @@ export interface Settings {
   useSaveDialog: boolean;
   filenameSuffix: boolean;
   historyEnabled: boolean;
+  /** Load the external Photopea editor without asking first. */
+  photopeaAutoLoad: boolean;
 }
 
 export interface HistoryEntry {
@@ -52,6 +54,7 @@ export const DEFAULT_SETTINGS: Settings = {
   useSaveDialog: false,
   filenameSuffix: true,
   historyEnabled: true,
+  photopeaAutoLoad: false,
 };
 
 const persist = (key: string, value: unknown) => void kvSet(key, value);
