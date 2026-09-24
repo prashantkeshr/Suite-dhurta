@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { CATEGORIES, TOOLS, getCategory, toolsInCategory, isUsable, sortTools } from '@/tools/registry';
 import { searchTools } from '@/search/search';
@@ -20,7 +20,9 @@ function applyFilter<T extends { status: string }>(list: T[], f: Filter) {
 
 export function AllToolsPage() {
   useDocumentMeta('All tools', 'Every tool in the suite, grouped by category, with availability status.', '/tools');
-  const [q, setQ] = useState('');
+  // ?q= lets search engines (and shared links) open the list pre-filtered.
+  const [params] = useSearchParams();
+  const [q, setQ] = useState(() => params.get('q') ?? '');
   const [filter, setFilter] = useState<Filter>('all');
   const results = useMemo(() => (q.trim() ? searchTools(q, 100).map((r) => r.tool) : null), [q]);
 

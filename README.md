@@ -55,6 +55,23 @@ The dev server runs at http://localhost:5173 (or the port you pass with `-- --po
 
 Set the public URL (used for canonical links and the sitemap) in [src/app/config.ts](src/app/config.ts).
 
+## SEO & discovery
+
+Generated at build time from the tool registry by [scripts/postbuild.ts](scripts/postbuild.ts) (content helpers in [src/seo/seo.ts](src/seo/seo.ts)):
+
+- **One real HTML page per route** with its own title, description, canonical, robots, Open Graph and Twitter tags, plus readable static content (heading, how-to, FAQ, formats, related tools) for crawlers and AI bots that don't run JavaScript.
+- **JSON-LD structured data:** , , ,  on tools;  on categories;  +  (with site search) on the home page. The same FAQ and steps are shown on each tool page.
+- **Sitemaps:**  (index) → pages, categories, tools. Coming-soon tools and empty categories are  and left out.
+- **AI discovery:**  and ;  explicitly allows AI crawlers (GPTBot, OAI-SearchBot, ClaudeBot, PerplexityBot, Google-Extended…).
+- **IndexNow:** after every deploy, the  job in [.github/workflows/deploy.yml](.github/workflows/deploy.yml) submits all sitemap URLs to Bing, Yandex, Seznam and Naver ([scripts/indexnow.mjs](scripts/indexnow.mjs)). The key lives in  with the matching file in .
+- Share image  (1200 × 630) and PNG icons; .
+
+**One-time manual steps (Google doesn't accept automatic pings):**
+
+1. Google Search Console → add property  → verify (DNS TXT record at your domain provider, or paste the meta-tag code into  in [src/app/config.ts](src/app/config.ts) and push).
+2. Search Console → Sitemaps → submit . Optionally use URL Inspection → *Request indexing* for the home page and top tools.
+3. Bing Webmaster Tools → *Import from Google Search Console* (or verify with ) → submit . Bing also powers ChatGPT search and Copilot.
+
 ## Renaming the product
 
 The name, tagline, organisation and site URL live only in [src/app/config.ts](src/app/config.ts) (plus the static `<title>` in `index.html`, which is replaced at runtime). UI strings live in [src/i18n/en.ts](src/i18n/en.ts).

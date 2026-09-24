@@ -16,6 +16,7 @@ import { ComingSoon, ProcessingNotice, EmptyState } from '@/components/ui/states
 import { Breadcrumb } from '@/components/tools/common';
 import { ToolGrid } from '@/components/tools/ToolCard';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { toolTitle, toolDescription, toolFaqs, toolSteps } from '@/seo/seo';
 
 const lazyCache = new Map<string, ReturnType<typeof lazy>>();
 function lazyTool(id: string) {
@@ -50,7 +51,7 @@ function ToolPage({ id }: { id: string }) {
     useHandoff.getState().clear();
   }, []);
 
-  useDocumentMeta(tool ? tool.name : t('tool.notFound'), tool?.description, tool ? `/tools/${tool.id}` : undefined);
+  useDocumentMeta(tool ? toolTitle(tool) : t('tool.notFound'), tool ? toolDescription(tool) : undefined, tool ? `/tools/${tool.id}` : undefined);
 
   const usable = !!tool && isUsable(tool) && !!TOOL_LOADERS[tool.id];
   useEffect(() => {
@@ -148,6 +149,41 @@ function ToolPage({ id }: { id: string }) {
         <div className="mt-8">
           <ProcessingNotice tool={tool} />
         </div>
+      )}
+
+      {usable && (
+        <section className="mt-8" aria-labelledby="howto-title">
+          <h2 id="howto-title" className="section-title">
+            How to use {tool.name}
+          </h2>
+          <ol className="card list-decimal space-y-1.5 py-3 pl-9 pr-4 text-sm text-muted">
+            {toolSteps(tool).map((s) => (
+              <li key={s}>{s}</li>
+            ))}
+          </ol>
+        </section>
+      )}
+
+      {usable && (
+        <section className="mt-8" aria-labelledby="faq-title">
+          <h2 id="faq-title" className="section-title">
+            Frequently asked questions
+          </h2>
+          {/* Native <details> keeps answers in the page for search engines while staying collapsible. */}
+          <div className="card divide-y divide-line px-4">
+            {toolFaqs(tool).map((f) => (
+              <details key={f.q} className="group py-3">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-medium text-fg">
+                  {f.q}
+                  <span className="text-muted transition-transform group-open:rotate-90" aria-hidden>
+                    ›
+                  </span>
+                </summary>
+                <p className="mt-2 text-sm text-muted">{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
       )}
 
       {related.length > 0 && (

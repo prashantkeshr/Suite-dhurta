@@ -14,7 +14,8 @@ function setMeta(attr: 'name' | 'property', key: string, content: string) {
 /** Per-page title, description, canonical URL and Open Graph tags. */
 export function useDocumentMeta(title: string, description?: string, path?: string) {
   useEffect(() => {
-    const full = title ? `${title} — ${APP.name}` : `${APP.name} — ${APP.tagline}`;
+    // Titles that already carry the brand (e.g. SEO tool titles) are used as-is.
+    const full = !title ? `${APP.name} — ${APP.tagline}` : title.includes(APP.name) ? title : `${title} — ${APP.name}`;
     document.title = full;
     setMeta('property', 'og:title', full);
     if (description) {
