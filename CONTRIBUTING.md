@@ -27,7 +27,7 @@ Before changing a tool's status to `available`:
 ## Code style
 
 - TypeScript strict mode; no `any` unless isolated and justified.
-- Components render text as React nodes — never `dangerouslySetInnerHTML` for user content.
+- Components render text as React nodes — never `dangerouslySetInnerHTML` for user content. The single exception is the Markdown preview, whose HTML always passes through DOMPurify first; keep it that way.
 - Colours only through the design tokens (`bg-surface`, `text-muted`, `border-line`, `text-accent`…).
 - UI strings used in shared components go in `src/i18n/en.ts`. Tool-specific copy may stay in the tool for now; move it to i18n when a second language is added.
 - Heavy libraries are imported only from tool modules (never from `app/`, `components/` or the registry), so they stay out of the initial bundle.

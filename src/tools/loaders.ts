@@ -13,6 +13,9 @@ const imageBatch: Loader = () => import('./image/ImageBatchTool');
 const pdfPages: Loader = () => import('./pdf/PdfPagesTool');
 const codec: Loader = () => import('./developer/CodecTool');
 const csvJson: Loader = () => import('./data/CsvJsonTool');
+const markdown: Loader = () => import('./documents/MarkdownTool');
+const cssGen: Loader = () => import('./developer/CssGeneratorTool');
+const httpTools: Loader = () => import('./developer/HttpToolsTool');
 
 export const TOOL_LOADERS: Record<string, Loader> = {
   // Images
@@ -56,6 +59,12 @@ export const TOOL_LOADERS: Record<string, Loader> = {
   'find-replace': () => import('./text/FindReplaceTool'),
   'slug-generator': () => import('./text/SlugTool'),
   'lorem-ipsum': () => import('./text/LoremTool'),
+  'text-diff': () => import('./text/TextDiffTool'),
+
+  // Documents
+  'markdown-editor': markdown,
+  'markdown-to-pdf': markdown,
+  'text-to-pdf': () => import('./documents/TextToPdfTool'),
 
   // Developer
   'json-formatter': () => import('./developer/JsonFormatterTool'),
@@ -66,6 +75,13 @@ export const TOOL_LOADERS: Record<string, Loader> = {
   'jwt-decoder': () => import('./developer/JwtDecoderTool'),
   'regex-tester': () => import('./developer/RegexTesterTool'),
   'color-converter': () => import('./developer/ColorTool'),
+  'yaml-formatter': () => import('./developer/YamlTool'),
+  'xml-formatter': () => import('./developer/XmlTool'),
+  'code-formatter': () => import('./developer/CodeFormatterTool'),
+  'css-gradient': cssGen,
+  'css-shadow': cssGen,
+  'http-headers': httpTools,
+  'user-agent': httpTools,
 
   // Security
   'password-generator': () => import('./security/PasswordTool'),
@@ -76,6 +92,8 @@ export const TOOL_LOADERS: Record<string, Loader> = {
   // Data
   'csv-to-json': csvJson,
   'json-to-csv': csvJson,
+  'csv-viewer': () => import('./data/CsvEditorTool'),
+  'spreadsheet-viewer': () => import('./data/SpreadsheetTool'),
 
   // Calculators & converters
   'percentage-calculator': () => import('./calculators/PercentageTool'),

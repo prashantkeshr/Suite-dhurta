@@ -93,6 +93,21 @@ Detection trusts content over names: a PNG renamed `.jpg` is detected as PNG and
 - Drawing on pages (page numbers, watermarks, signatures) goes through `tools/pdf/stamp.ts`, which maps *visual* coordinates to PDF user space so pages with a /Rotate flag or an offset crop box get upright, correctly placed marks.
 - Watermark and typed-signature text is rendered to PNG with the browser's fonts, then embedded — so Hindi and other scripts work (the standard PDF fonts only cover Latin). Page numbers use Helvetica and reject non-Latin formats with a clear message.
 
+### Phase 4 libraries (all lazy-loaded per tool)
+
+| Library | Used by | Why |
+|---|---|---|
+| `marked` + `DOMPurify` | Markdown editor | GFM parsing; every render is sanitised (scripts, event handlers, `javascript:` links removed) before it reaches the DOM |
+| `diff` | Text diff | Myers diff; line mode uses `diffArrays` with a comparator so "ignore case/whitespace" still shows the original text |
+| `yaml` | YAML tool | Spec-compliant parser with line/column errors; alias expansion capped at 100 (billion-laughs guard) |
+| Prettier (standalone + per-language plugins) | Code formatter | Only the chosen language's plugins are downloaded |
+| `sql-formatter` | Code formatter (SQL) | Dialect-aware SQL formatting |
+| SheetJS 0.20.3 (from cdn.sheetjs.com) | Spreadsheet viewer | The npm registry copy (0.18.5) is outdated with known vulnerabilities; 0.20.3 is installed from SheetJS's official tarball. Formulas/HTML are not parsed; macros never run |
+
+"To PDF" tools (Markdown, text) print a sanitised standalone HTML document through a hidden iframe with a restrictive CSP. The browser's print engine gives correct shaping for Hindi and other scripts and selectable text, which a JavaScript PDF writer can't match without shipping large font files.
+
+The CSV editor and spreadsheet viewer share `components/data/DataGrid`, a virtualised grid (only visible rows are in the DOM) that renders cells as text. Table operations live in `tools/data/table.ts` and are unit-tested.
+
 ### Encoder capability
 
 Browsers silently fall back to PNG when they can't encode a type. `canEncode()` checks the actual blob type once; the image tool disables unsupported formats and reports any fallback per file.
@@ -174,7 +189,7 @@ Browser flows (worker image conversion, crop, watermark, favicon/ICO, PDF merge/
 | 1 Foundation | Done |
 | 2 Images | Done |
 | 3 PDF core | Done (compress, protect, compare remain planned) |
-| 4 Text & data | Core done; diff, YAML/XML/code formatters, Markdown editor, CSV grid next |
+| 4 Text & data | Done |
 | 5 Productivity | Calculators partly done; notes, tasks, timer, QR, generators next |
 | 6 PWA | Service worker, install, offline shell, per-tool offline indicators |
 | 7 Advanced documents | OCR and Office conversions, only if quality is proven |

@@ -10,6 +10,11 @@ export default defineConfig({
   },
   base: process.env.VITE_BASE ?? '/',
   worker: { format: 'es' },
+  // Pre-bundle lazily imported libraries so the dev server doesn't reload the
+  // page the first time a tool imports one. (No effect on production builds.)
+  optimizeDeps: {
+    include: ['pdf-lib', 'fflate', 'diff', 'marked', 'dompurify', 'yaml', 'sql-formatter', 'xlsx', 'prettier/standalone', 'prettier/plugins/babel', 'prettier/plugins/estree', 'prettier/plugins/typescript', 'prettier/plugins/html', 'prettier/plugins/postcss', 'prettier/plugins/markdown', 'prettier/plugins/yaml', 'prettier/plugins/graphql'],
+  },
   build: {
     outDir: 'dist',
     sourcemap: false,

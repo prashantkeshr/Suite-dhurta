@@ -157,3 +157,8 @@ export function jsonToCsv(input: unknown, delimiter: Delimiter = ','): { csv: st
   }
   return { csv: lines.join('\r\n'), rows: arr.length, columns };
 }
+
+/** Write a header and rows as CSV (RFC 4180 quoting, CRLF line endings). */
+export function rowsToCsv(header: string[], rows: string[][], delimiter: Delimiter = ','): string {
+  return [header, ...rows].map((r) => r.map((v) => escapeField(v, delimiter)).join(delimiter)).join('\r\n');
+}

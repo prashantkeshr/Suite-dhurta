@@ -5,6 +5,7 @@ import { Card, Segmented, Toggle } from '@/components/ui/primitives';
 import { TextPanel, CopyButton, DownloadTextButton } from '@/components/tools/common';
 import { OpenTextButton } from '@/tools/text/shared';
 import { formatJson, jsonStats } from './logic';
+import { JsonTree } from './JsonTree';
 
 type Indent = '2' | '4' | 'tab' | 'min';
 
@@ -13,16 +14,18 @@ export default function JsonFormatterTool({ initialFiles }: { tool: ToolDefiniti
   const [indent, setIndent] = useState<Indent>('2');
   const [sortKeys, setSortKeys] = useState(false);
   const [name, setName] = useState('formatted.json');
+  const [view, setView] = useState<'text' | 'tree'>('text');
 
   const result = useMemo(() => formatJson(text, indent === 'min' ? 0 : indent === 'tab' ? '\t' : Number(indent), sortKeys), [text, indent, sortKeys]);
-  const stats = useMemo(() => {
-    if (!result.output) return null;
+  const parsed = useMemo(() => {
+    if (!result.output) return undefined;
     try {
-      return jsonStats(JSON.parse(result.output));
+      return { value: JSON.parse(result.output) as unknown };
     } catch {
-      return null;
+      return undefined;
     }
   }, [result.output]);
+  const stats = useMemo(() => (parsed ? jsonStats(parsed.value) : null), [parsed]);
 
   return (
     <div className="space-y-4">
@@ -39,6 +42,7 @@ export default function JsonFormatterTool({ initialFiles }: { tool: ToolDefiniti
           ]}
         />
         <Toggle checked={sortKeys} onChange={setSortKeys} label="Sort keys A–Z" />
+        <Segmented label="Show result as" value={view} onChange={setView} options={[{ value: 'text', label: 'Text' }, { value: 'tree', label: 'Tree' }]} />
       </div>
 
       {text.trim() && (
@@ -69,6 +73,12 @@ export default function JsonFormatterTool({ initialFiles }: { tool: ToolDefiniti
 
       <div className="grid gap-4 md:grid-cols-2">
         <TextPanel id="json-in" label="Input" value={text} onChange={setText} rows={18} invalid={!!result.error} placeholder='{"name": "Dhurta", "tools": [1, 2, 3]}' actions={<OpenTextButton accept=".json,application/json,text/plain" onText={(t, n) => (setText(t), setName(n.replace(/(\.[^.]+)?$/, '-formatted.json')))} initialFiles={initialFiles} />} />
+        {view === 'tree' && parsed ? (
+          <div>
+            <p className="label mb-1.5 flex min-h-[32px] items-center">Tree · hover a node for its path</p>
+            <JsonTree value={parsed.value} />
+          </div>
+        ) : (
         <TextPanel
           id="json-out"
           label="Result"
@@ -82,6 +92,7 @@ export default function JsonFormatterTool({ initialFiles }: { tool: ToolDefiniti
             </>
           }
         />
+        )}
       </div>
     </div>
   );
