@@ -87,7 +87,11 @@ Detection trusts content over names: a PNG renamed `.jpg` is detected as PNG and
 - **Image worker** — decode (`createImageBitmap`) → resize/rotate/flip on `OffscreenCanvas` → `convertToBlob`. One worker per job, so **Cancel terminates the worker** and actually stops the work. When OffscreenCanvas is missing, for SVG input, or when the worker can't decode a format, the engine falls back to the main thread with `<img>` + `<canvas>`.
 - **Regex worker** — runs user regular expressions with a 1.5 s timeout, so catastrophic backtracking can't freeze the page.
 - Hashing uses `crypto.subtle.digest`, which is already asynchronous and off the main thread in browsers.
-- PDF work uses pdf-lib on the main thread with per-file progress. Moving it into a worker is planned together with the PDF viewer.
+- PDF editing uses pdf-lib on the main thread with per-file/per-page progress.
+- PDF rendering (thumbnails, PDF → image, text extraction) uses pdf.js (legacy build, for older Safari/Android), which parses in its own worker. Pages are rendered with the `print` intent: the default `display` intent paces work with `requestAnimationFrame`, which browsers pause in background tabs, so exports would otherwise stall when the user switches tabs.
+- Thumbnails render lazily (IntersectionObserver) and are cached per document; object URLs and the pdf.js document are released when a tool closes the file.
+- Drawing on pages (page numbers, watermarks, signatures) goes through `tools/pdf/stamp.ts`, which maps *visual* coordinates to PDF user space so pages with a /Rotate flag or an offset crop box get upright, correctly placed marks.
+- Watermark and typed-signature text is rendered to PNG with the browser's fonts, then embedded — so Hindi and other scripts work (the standard PDF fonts only cover Latin). Page numbers use Helvetica and reject non-Latin formats with a clear message.
 
 ### Encoder capability
 
@@ -136,7 +140,7 @@ Colours are CSS variables (RGB channels) in [src/index.css](src/index.css) — `
 ## Performance
 
 - Initial load: React + router (≈67 KB gzip) and the app shell + registry (≈41 KB gzip).
-- Every page except Home and every tool is a lazy chunk. pdf-lib (≈180 KB gzip) and fflate load only with PDF/ZIP tools.
+- Every page except Home and every tool is a lazy chunk. pdf-lib (≈180 KB gzip), pdf.js and fflate load only with PDF/ZIP tools.
 - Only the icons referenced by the registry are bundled.
 - Object URLs are revoked on unmount; canvases are shrunk to 0×0 after encoding; bitmaps are closed.
 - Text tools use `useDeferredValue` so typing stays responsive on long documents.
@@ -161,15 +165,15 @@ Vitest, in Node, for everything that doesn't need a DOM:
 - filenames, formatting, error descriptions
 - tool logic: page ranges, text stats (Hindi graphemes, emoji), case/slug/clean/find-replace, CSV parsing edge cases, JSON error location, Base64/URL/entities, JWT, colours, EMI/GST/units, image sizing, EXIF orientation, secure random generators, SHA-256
 
-Browser flows (worker image conversion, PDF merge/split, encrypted-PDF handling, hand-off from the home page, mobile layout) were verified manually in Chromium. Adding Playwright end-to-end tests is on the roadmap.
+Browser flows (worker image conversion, crop, watermark, favicon/ICO, PDF merge/split/organize/watermark/page numbers on rotated pages/sign/to-image/to-text, encrypted-PDF handling, hand-off from the home page, mobile layout) were verified in Chromium by generating real files in the page and inspecting the outputs. Adding Playwright end-to-end tests is on the roadmap.
 
 ## Roadmap
 
 | Phase | Scope |
 |---|---|
 | 1 Foundation | Done |
-| 2 Images | Done except crop, watermark, favicon |
-| 3 PDF core | Merge/split/rotate/delete/metadata/image→PDF done; viewer with thumbnails, PDF→image, reorder, watermark, sign, page numbers next |
+| 2 Images | Done |
+| 3 PDF core | Done (compress, protect, compare remain planned) |
 | 4 Text & data | Core done; diff, YAML/XML/code formatters, Markdown editor, CSV grid next |
 | 5 Productivity | Calculators partly done; notes, tasks, timer, QR, generators next |
 | 6 PWA | Service worker, install, offline shell, per-tool offline indicators |

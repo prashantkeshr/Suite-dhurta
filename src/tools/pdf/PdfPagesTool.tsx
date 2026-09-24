@@ -15,6 +15,8 @@ import { useSaver } from '@/components/tools/common';
 import { loadPdf, extractPages, rotatePages, deletePages, readInfo } from './engine';
 import { parsePageRanges, formatPageList, chunkPages } from './ranges';
 import { useJob } from './useJob';
+import { PdfThumbnail } from './PdfThumbnail';
+import { usePdfPreview } from './usePdfPreview';
 import { useInitialFiles } from '@/hooks/useInitialFiles';
 
 type Mode = 'split' | 'rotate' | 'delete';
@@ -63,6 +65,7 @@ export default function PdfPagesTool({ tool, initialFiles }: { tool: ToolDefinit
 
   useInitialFiles(initialFiles, open);
 
+  const { doc: preview } = usePdfPreview(pdf?.file);
   const count = pdf?.pages.length ?? 0;
   const sortedSelection = useMemo(() => [...selected].sort((a, b) => a - b), [selected]);
 
@@ -182,10 +185,10 @@ export default function PdfPagesTool({ tool, initialFiles }: { tool: ToolDefinit
               </Button>
             </div>
             <p id="range-help" className={clsx('mb-3 text-xs', rangeError ? 'text-error' : 'text-muted')}>
-              {rangeError ?? 'Type ranges or click pages below. Page previews are coming with the PDF viewer; tiles show each page’s shape.'}
+              {rangeError ?? 'Type ranges or click pages below.'}
             </p>
 
-            <div role="group" aria-label="Pages" className="grid grid-cols-4 gap-2 sm:grid-cols-6 xl:grid-cols-8">
+            <div role="group" aria-label="Pages" className="grid grid-cols-3 gap-2 sm:grid-cols-4 xl:grid-cols-6">
               {pdf.pages.map((p, i) => {
                 const rot = (p.rotation + (mode === 'rotate' && selected.has(i) ? angle : 0)) % 180 !== 0;
                 const w = rot ? p.height : p.width;
@@ -199,16 +202,23 @@ export default function PdfPagesTool({ tool, initialFiles }: { tool: ToolDefinit
                     aria-pressed={on}
                     aria-label={`Page ${i + 1}`}
                     className={clsx(
-                      'flex aspect-square items-center justify-center rounded-md border p-1.5 transition-colors disabled:cursor-default',
+                      'relative flex flex-col items-center gap-1 rounded-md border p-1.5 transition-colors disabled:cursor-default',
                       on ? (mode === 'delete' ? 'border-error bg-error/10' : 'border-accent bg-accent/10') : 'border-line hover:border-accent/50',
                     )}
                   >
+                    {preview ? (
+                      <>
+                        <PdfThumbnail doc={preview} index={i} rotate={mode === 'rotate' && on ? angle : 0} className={clsx('w-full', mode === 'delete' && on && 'opacity-40')} />
+                        <span className={clsx('text-xs tabular-nums', on ? (mode === 'delete' ? 'text-error line-through' : 'text-accent') : 'text-muted')}>{i + 1}</span>
+                      </>
+                    ) : (
                     <span
                       className={clsx('flex items-center justify-center rounded-sm border bg-surface text-xs font-medium tabular-nums', on ? (mode === 'delete' ? 'border-error text-error line-through' : 'border-accent text-accent') : 'border-line text-muted')}
                       style={w >= h ? { width: '100%', aspectRatio: `${w} / ${h}` } : { height: '100%', aspectRatio: `${w} / ${h}` }}
                     >
                       {i + 1}
                     </span>
+                    )}
                   </button>
                 );
               })}

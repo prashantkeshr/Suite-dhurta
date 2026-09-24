@@ -8,12 +8,12 @@ A privacy-first productivity suite that runs entirely in the browser. Images, PD
 
 ## Status
 
-Phase 1 (foundation) is complete, together with a first set of working tools pulled forward from later phases:
+Phases 1 (foundation), 2 (images) and 3 (PDF core) are complete, plus working tools pulled forward from later phases — 57 tools in total:
 
 | Area | Available now | Coming soon |
 |---|---|---|
-| Images | Resize, convert (JPEG/PNG/WebP + fixed-pair converters), compress, rotate, flip, SVG→PNG (beta), info, Base64 ↔ image — batch + ZIP | Crop, watermark, favicon, HEIC, background removal, Photopea (external) |
-| PDF | Merge, split/extract, rotate, delete pages, metadata view/strip, image → PDF | PDF → image, compress, reorder, watermark, sign, OCR, Office conversions |
+| Images | Resize, convert (JPEG/PNG/WebP + fixed-pair converters), compress, rotate, flip, crop, watermark (text in any script or logo), favicon/ICO generator, SVG→PNG (beta), info, Base64 ↔ image — batch + ZIP | HEIC, background removal, Photopea (external) |
+| PDF | Page thumbnails (pdf.js), merge, split/extract, rotate, delete, organize (reorder/duplicate/blank pages), watermark (incl. Hindi), page numbers, visual signature, PDF → image, PDF → text, metadata view/strip, image → PDF | Compress, password protect, compare, OCR, Office conversions |
 | Text | Word/character counter (Hindi-aware), case converter, line cleaner, find & replace, slug, lorem ipsum | Diff, Markdown editor, text → PDF |
 | Developer | JSON format/validate/minify, Base64, URL, HTML entities, URL/UTM parser, JWT decoder, regex tester, colour + contrast | YAML/XML/code formatters, gradient generator |
 | Security | Password, UUID, random token, SHA-1/256/384/512 (text + files) | Passphrase, QR |
@@ -21,7 +21,7 @@ Phase 1 (foundation) is complete, together with a first set of working tools pul
 | Calculators | Percentage/discount/profit, GST (2025 slabs), EMI + schedule, unit converter (13 quantities) | Scientific, interest, date/age, BMI |
 | Files | File info (magic-byte detection, SHA-256, duplicates), create ZIP, extract ZIP | — |
 
-Next phases: PWA/offline (6), PDF viewer with thumbnails (3), productivity tools (5). See [ARCHITECTURE.md](ARCHITECTURE.md#roadmap).
+Next phases: text & data extras (4), productivity tools (5), PWA/offline (6). See [ARCHITECTURE.md](ARCHITECTURE.md#roadmap).
 
 ## Getting started
 

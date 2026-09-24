@@ -28,6 +28,9 @@ export const TOOL_LOADERS: Record<string, Loader> = {
   'webp-to-jpg': imageBatch,
   'webp-to-png': imageBatch,
   'svg-to-png': imageBatch,
+  'image-cropper': () => import('./image/ImageCropTool'),
+  'image-watermark': () => import('./image/ImageWatermarkTool'),
+  'favicon-generator': () => import('./image/FaviconTool'),
   'image-info': () => import('./image/ImageInfoTool'),
   'image-to-base64': () => import('./image/ImageBase64Tool'),
   'base64-to-image': () => import('./image/ImageBase64Tool'),
@@ -39,6 +42,12 @@ export const TOOL_LOADERS: Record<string, Loader> = {
   'pdf-delete-pages': pdfPages,
   'pdf-metadata': () => import('./pdf/PdfMetadataTool'),
   'image-to-pdf': () => import('./pdf/ImageToPdfTool'),
+  'pdf-to-image': () => import('./pdf/PdfToImageTool'),
+  'pdf-to-text': () => import('./pdf/PdfToTextTool'),
+  'pdf-organize': () => import('./pdf/PdfOrganizeTool'),
+  'pdf-watermark': () => import('./pdf/PdfWatermarkTool'),
+  'pdf-page-numbers': () => import('./pdf/PdfPageNumbersTool'),
+  'pdf-sign': () => import('./pdf/PdfSignTool'),
 
   // Text
   'word-counter': () => import('./text/WordCounterTool'),

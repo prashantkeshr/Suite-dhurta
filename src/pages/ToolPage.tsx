@@ -96,7 +96,8 @@ function ToolPage({ id }: { id: string }) {
             {usable && (
               <span className="inline-flex items-center gap-1">
                 {tool.offline === 'no' ? <WifiOff size={13} aria-hidden /> : <Wifi size={13} aria-hidden />}
-                Offline: {tool.offline === 'yes' ? 'Yes' : tool.offline === 'limited' ? 'Limited' : 'No'}
+                {/* Until the offline app shell (PWA) ships, only processing — not reloading — works without internet. */}
+                {tool.offline === 'yes' ? 'No internet needed once open' : tool.offline === 'limited' ? 'Partly works offline' : 'Needs internet'}
               </span>
             )}
             {tool.inputTypes.length > 0 && (
