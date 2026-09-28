@@ -70,7 +70,7 @@ Generated at build time from the tool registry by [scripts/postbuild.ts](scripts
 
 **One-time manual steps (Google doesn't accept automatic pings):**
 
-1. Google Search Console → add property `https://suite.dhurta.com` → verify (DNS TXT record at your domain provider, or paste the meta-tag code into `APP.verification.google` in [src/app/config.ts](src/app/config.ts) and push).
+1. Google Search Console → add property `https://suite.dhurta.org` → verify (DNS TXT record at your domain provider, or paste the meta-tag code into `APP.verification.google` in [src/app/config.ts](src/app/config.ts) and push).
 2. Search Console → Sitemaps → submit `sitemap.xml`. Optionally use URL Inspection → *Request indexing* for the home page and top tools.
 3. Bing Webmaster Tools → *Import from Google Search Console* (or verify with `APP.verification.bing`) → submit `sitemap.xml`. Bing also powers ChatGPT search and Copilot.
 

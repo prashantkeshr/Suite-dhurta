@@ -167,7 +167,7 @@ const overlay = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}
   <g font-family="Segoe UI, Inter, DejaVu Sans, Arial, sans-serif">
     <text x="80" y="330" font-size="58" font-weight="700" fill="#f1f5f9">Free online tools that</text>
     <text x="80" y="400" font-size="58" font-weight="700" fill="#f1f5f9">never upload your files.</text>
-    <text x="${W - 80}" y="585" text-anchor="end" font-size="26" fill="#94a3b8">suite.dhurta.com</text>
+    <text x="${W - 80}" y="585" text-anchor="end" font-size="26" fill="#94a3b8">suite.dhurta.org</text>
     ${chipSvg}
   </g>
 </svg>`);
