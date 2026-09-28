@@ -100,8 +100,9 @@ export const organizationLd = (): Json => ({
   '@type': 'Organization',
   '@id': `${SITE}/#organization`,
   name: APP.org,
-  url: SITE,
+  url: APP.orgUrl,
   logo: `${SITE}/icon-512.png`,
+  sameAs: [...APP.sameAs],
 });
 
 export const websiteLd = (): Json => ({

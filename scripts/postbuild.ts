@@ -10,7 +10,7 @@
  *     React replaces this content when the app starts.
  *
  * Also generates: sitemap index + sitemaps, robots.txt (AI crawlers welcome),
- * llms.txt / llms-full.txt, site.webmanifest, 404.html and _redirects.
+ * llms.txt / llms-full.txt, feed.xml (Atom), site.webmanifest, 404.html and _redirects.
  */
 import { execSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -74,6 +74,7 @@ function head(p: Page): string {
     `<meta name="twitter:title" content="${esc(p.title)}" />`,
     `<meta name="twitter:description" content="${esc(p.description)}" />`,
     `<meta name="twitter:image" content="${OG_IMAGE}" />`,
+    `<link rel="alternate" type="application/atom+xml" title="${esc(APP.name)} — tools" href="${SITE}/feed.xml" />`,
     v.google && `<meta name="google-site-verification" content="${esc(v.google)}" />`,
     v.bing && `<meta name="msvalidate.01" content="${esc(v.bing)}" />`,
     v.yandex && `<meta name="yandex-verification" content="${esc(v.yandex)}" />`,
@@ -248,6 +249,37 @@ ${groups.map((g) => `  <sitemap><loc>${SITE}/sitemap-${g}.xml</loc><lastmod>${la
 `,
 );
 
+/* ---------- Atom feed of tools (feed readers, aggregators, discovery) ---------- */
+
+writeFileSync(
+  join(dist, 'feed.xml'),
+  `<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>${esc(APP.name)} — free in-browser tools</title>
+  <subtitle>${esc(APP.tagline)}. Free, no upload, no sign-up.</subtitle>
+  <id>${SITE}/</id>
+  <link href="${SITE}/" />
+  <link rel="self" href="${SITE}/feed.xml" />
+  <updated>${lastmod}T00:00:00Z</updated>
+  <author><name>${esc(APP.org)}</name><uri>${APP.orgUrl}</uri></author>
+  <icon>${SITE}/favicon-32.png</icon>
+  <logo>${SITE}/icon-512.png</logo>
+${usableTools
+  .map(
+    (t) => `  <entry>
+    <title>${esc(t.name)}</title>
+    <id>${SITE}/tools/${t.id}</id>
+    <link href="${SITE}/tools/${t.id}" />
+    <updated>${lastmod}T00:00:00Z</updated>
+    <category term="${esc(getCategory(t.category)?.name ?? t.category)}" />
+    <summary>${esc(t.description)}</summary>
+  </entry>`,
+  )
+  .join('\n')}
+</feed>
+`,
+);
+
 /* ---------- robots.txt ---------- */
 
 // Search engines and AI assistants are explicitly welcome, so the tools can be
@@ -267,6 +299,7 @@ Allow: /
 Sitemap: ${SITE}/sitemap.xml
 
 # AI-readable summaries: ${SITE}/llms.txt and ${SITE}/llms-full.txt
+# Tools feed: ${SITE}/feed.xml
 `,
 );
 
@@ -289,7 +322,7 @@ const llms =
     const list = usableTools.filter((t) => t.category === c.id);
     return list.length ? `\n## ${c.name}\n\n${list.map((t) => `- [${t.name}](${SITE}/tools/${t.id}): ${t.description}`).join('\n')}\n` : '';
   }).join('') +
-  `\n## Optional\n\n- [All tools](${SITE}/tools): full list by category\n- [Privacy](${SITE}/privacy): how files and data are handled\n- [Full details for every tool](${SITE}/llms-full.txt)\n${plannedTools.length ? `- Coming soon: ${plannedTools.map((t) => t.name).join(', ')}\n` : ''}`;
+  `\n## Optional\n\n- [All tools](${SITE}/tools): full list by category\n- [Privacy](${SITE}/privacy): how files and data are handled\n- [Full details for every tool](${SITE}/llms-full.txt)\n- [${APP.org}](${APP.orgUrl}): the organisation behind ${APP.name}\n${plannedTools.length ? `- Coming soon: ${plannedTools.map((t) => t.name).join(', ')}\n` : ''}`;
 writeFileSync(join(dist, 'llms.txt'), llms);
 
 const llmsFull =
@@ -311,6 +344,7 @@ writeFileSync(
       name: APP.name,
       short_name: APP.shortName,
       description: `${APP.tagline}. Free, no upload, no sign-up.`,
+      id: '/',
       start_url: '/',
       scope: '/',
       display: 'standalone',
@@ -325,6 +359,11 @@ writeFileSync(
         { src: '/icon-maskable-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
         { src: '/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
       ],
+      // Long-press / right-click shortcuts on the installed app icon.
+      shortcuts: usableTools
+        .filter((t) => t.popular)
+        .slice(0, 4)
+        .map((t) => ({ name: t.name, url: `/tools/${t.id}`, description: t.description, icons: [{ src: '/icon-192.png', sizes: '192x192' }] })),
     },
     null,
     2,
@@ -332,4 +371,4 @@ writeFileSync(
 );
 
 const counts = Object.fromEntries(groups.map((g) => [g, pages.filter((p) => p.sitemap === g).length]));
-console.log(`postbuild: ${pages.length} pages (${pages.filter((p) => p.index).length} indexable), sitemaps ${JSON.stringify(counts)}, robots.txt, llms.txt, llms-full.txt, site.webmanifest, 404.html`);
+console.log(`postbuild: ${pages.length} pages (${pages.filter((p) => p.index).length} indexable), sitemaps ${JSON.stringify(counts)}, robots.txt, llms.txt, llms-full.txt, feed.xml, site.webmanifest, 404.html`);

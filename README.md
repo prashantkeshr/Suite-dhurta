@@ -66,7 +66,11 @@ Generated at build time from the tool registry by [scripts/postbuild.ts](scripts
 - **Sitemaps:** `/sitemap.xml` (index) → pages, categories, tools. Coming-soon tools and empty categories are `noindex` and left out.
 - **AI discovery:** `/llms.txt` and `/llms-full.txt`; `robots.txt` explicitly allows AI crawlers (GPTBot, OAI-SearchBot, ClaudeBot, PerplexityBot, Google-Extended…).
 - **IndexNow:** after every deploy, the `indexnow` job in [.github/workflows/deploy.yml](.github/workflows/deploy.yml) submits all sitemap URLs to Bing, Yandex, Seznam and Naver ([scripts/indexnow.mjs](scripts/indexnow.mjs)). The key lives in `APP.indexNowKey` with the matching file in `public/`.
-- Share image `public/og.jpg` (1200 × 630) and PNG icons; `site.webmanifest`.
+- **Feed:** `/feed.xml` (Atom) lists every working tool, linked from each page's `<head>`, for feed readers and aggregators.
+- **Organisation:** the `Organization` data points to the parent site `APP.orgUrl` (https://dhurta.org) with `APP.sameAs` profiles, so search engines and AI assistants connect the suite to Dhurta.Org.
+- Share image `public/og.jpg` (1200 × 630) and PNG icons; `site.webmanifest` (with install shortcuts to popular tools).
+
+The live domain is **https://suite.dhurta.org** (set in `APP.siteUrl` and `public/CNAME`). It was previously `suite.dhurta.com`, which no longer serves the site.
 
 **One-time manual steps (Google doesn't accept automatic pings):**
 

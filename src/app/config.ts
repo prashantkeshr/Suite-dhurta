@@ -8,6 +8,9 @@ export const APP = {
   tagline: 'Private, in-browser productivity tools',
   org: 'Dhurta.Org',
   siteUrl: 'https://suite.dhurta.org',
+  /** Parent organisation site and public profiles (used in structured data). */
+  orgUrl: 'https://dhurta.org',
+  sameAs: ['https://github.com/prashantkeshr/Suite-dhurta'],
   version: '0.1.0',
   /**
    * Search-engine ownership verification codes (the content value of the
