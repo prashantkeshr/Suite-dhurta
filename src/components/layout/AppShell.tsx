@@ -10,18 +10,14 @@ import { Icon } from '@/components/ui/Icon';
 import { Drawer } from '@/components/ui/Dialog';
 import { t } from '@/i18n';
 import { CommandPalette, usePalette } from './CommandPalette';
+import { Brand } from '@/components/brand/Brand';
 
 const counts = Object.fromEntries(CATEGORIES.map((c) => [c.id, TOOLS.filter((x) => x.category === c.id && isUsable(x)).length]));
 
 function Logo() {
   return (
-    <Link to="/" className="flex items-center gap-2 rounded-md font-semibold tracking-tight text-fg" aria-label={`${APP.name} home`}>
-      <svg viewBox="0 0 32 32" className="h-7 w-7 shrink-0" aria-hidden>
-        <rect width="32" height="32" rx="7" fill="rgb(var(--accent))" />
-        <path d="M9 8h7.5a8 8 0 0 1 0 16H9z" fill="none" stroke="rgb(var(--accent-fg))" strokeWidth="3" />
-        <path d="M13 13h3.5a3 3 0 0 1 0 6H13z" fill="rgb(var(--accent-fg))" />
-      </svg>
-      <span className="text-[15px]">{APP.name}</span>
+    <Link to="/" className="flex items-center rounded-md" aria-label={`${APP.name} home`}>
+      <Brand kind="logo" height={34} alt="" />
     </Link>
   );
 }
@@ -174,7 +170,10 @@ export function AppShell() {
         </main>
 
         <footer className="hidden border-t border-line px-6 py-4 text-xs text-muted md:block">
-          <div className="mx-auto flex max-w-6xl flex-wrap gap-x-4 gap-y-1">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-1">
+            <Link to="/about" aria-label={`About ${APP.name}`} className="mr-1">
+              <Brand kind="badge" height={26} alt="" />
+            </Link>
             <span>
               {APP.name} v{APP.version} · by {APP.org}
             </span>

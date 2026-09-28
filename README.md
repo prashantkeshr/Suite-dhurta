@@ -1,3 +1,5 @@
+<p><img src="public/brand/logo-light.png" alt="Dhurta Suite" height="64"></p>
+
 # Dhurta Suite
 
 A privacy-first productivity suite that runs entirely in the browser. Images, PDFs, text, data, developer utilities, calculators and file tools — processed locally, with no backend, no database, no account and no uploads.
@@ -71,6 +73,10 @@ Generated at build time from the tool registry by [scripts/postbuild.ts](scripts
 1. Google Search Console → add property `https://suite.dhurta.com` → verify (DNS TXT record at your domain provider, or paste the meta-tag code into `APP.verification.google` in [src/app/config.ts](src/app/config.ts) and push).
 2. Search Console → Sitemaps → submit `sitemap.xml`. Optionally use URL Inspection → *Request indexing* for the home page and top tools.
 3. Bing Webmaster Tools → *Import from Google Search Console* (or verify with `APP.verification.bing`) → submit `sitemap.xml`. Bing also powers ChatGPT search and Copilot.
+
+## Brand assets
+
+The source logo files live in [logo/](logo/). Running `node scripts/brand.mjs` builds every derived asset into `public/` from them: `favicon.ico` (16/32/48), `favicon-16/32.png`, the PWA icons `icon-192/512.png` and `icon-maskable-192/512.png`, the Apple touch icon `icon-180.png`, the social card `og.jpg` (1200×630), and the light/dark logo, badge and mark images in `public/brand/`. The UI shows these through `<Brand kind="logo" | "badge" | "mark">` in [src/components/brand/Brand.tsx](src/components/brand/Brand.tsx), which swaps between the light and dark versions with the theme. Run the script again after changing anything in `logo/`.
 
 ## Renaming the product
 

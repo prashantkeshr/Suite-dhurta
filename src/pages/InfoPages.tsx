@@ -7,6 +7,7 @@ import { t } from '@/i18n';
 import { Card } from '@/components/ui/primitives';
 import { EmptyState } from '@/components/ui/states';
 import { Breadcrumb } from '@/components/tools/common';
+import { Brand } from '@/components/brand/Brand';
 
 function Prose({ children }: { children: ReactNode }) {
   return <div className="space-y-4 text-[15px] leading-relaxed text-fg [&_h2]:mt-8 [&_h2]:text-lg [&_h2]:font-semibold [&_li]:ml-5 [&_li]:list-disc [&_p]:text-muted [&_ul]:space-y-1 [&_ul]:text-muted">{children}</div>;
@@ -82,7 +83,10 @@ export function AboutPage() {
   return (
     <div className="max-w-3xl">
       <Breadcrumb items={[{ label: t('nav.home'), to: '/' }, { label: t('nav.about') }]} />
-      <h1 className="text-2xl font-semibold tracking-tight">About {APP.name}</h1>
+      <div className="flex items-center gap-4">
+        <Brand kind="mark" height={64} alt="" />
+        <h1 className="text-2xl font-semibold tracking-tight">About {APP.name}</h1>
+      </div>
       <Prose>
         <p className="mt-2">
           {APP.name} is a collection of productivity tools that run inside your web browser. It is built by {APP.org} around one idea: you should be able to convert, compress
