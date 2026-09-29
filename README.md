@@ -54,7 +54,7 @@ The dev server runs at http://localhost:5173 (or the port you pass with `-- --po
 `npm run build` produces a fully static `dist/` folder.
 
 - **Netlify / Cloudflare Pages:** publish `dist/`. The generated `_redirects` sends every route to `index.html`.
-- **GitHub Pages:** publish `dist/`. The generated `404.html` is a copy of `index.html`, so deep links work. For a project site under a sub-path, build with `VITE_BASE=/repo-name/ npm run build`.
+- **GitHub Pages:** publish `dist/`. The generated `404.html` is a copy of `index.html`, so deep links work. For a project site under a sub-path, build with `VITE_BASE=/repo-name/ npm run build`. In the repository, **Settings → Pages → Source must be “GitHub Actions”**: with “Deploy from a branch”, GitHub also publishes the raw, unbuilt source on every push and races the real deploy.
 - **Vercel:** set the output directory to `dist` and add a rewrite of `/(.*)` to `/index.html`.
 
 Set the public URL (used for canonical links and the sitemap) in [src/app/config.ts](src/app/config.ts).
