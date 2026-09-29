@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
   pages: write
   id-token: write
 
@@ -48,6 +49,23 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # Safety net: if the repository's Pages source is ever "Deploy from a branch",
+      # GitHub also publishes the raw, unbuilt source for this commit. Wait for that
+      # legacy job to finish so this built site is always the one left live.
+      - name: Wait for any legacy Pages branch build of this commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for i in $(seq 1 30); do
+            runs=$(gh api "repos/${{ github.repository }}/actions/runs?head_sha=${{ github.sha }}"               --jq '[.workflow_runs[] | select(.path == "dynamic/pages/pages-build-deployment")]')
+            total=$(echo "$runs" | jq 'length')
+            pending=$(echo "$runs" | jq '[.[] | select(.status != "completed")] | length')
+            if [ "$total" -gt 0 ] && [ "$pending" -eq 0 ]; then echo "Legacy build finished; deploying after it."; exit 0; fi
+            if [ "$total" -eq 0 ] && [ "$i" -ge 6 ]; then echo "No legacy branch build for this commit."; exit 0; fi
+            sleep 10
+          done
+          echo "::warning::Legacy Pages build still running after 5 minutes; deploying anyway."
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
