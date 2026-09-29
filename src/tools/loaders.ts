@@ -101,6 +101,20 @@ export const TOOL_LOADERS: Record<string, Loader> = {
   'gst-calculator': () => import('./calculators/GstTool'),
   'emi-calculator': () => import('./calculators/EmiTool'),
   'unit-converter': () => import('./calculators/UnitConverterTool'),
+  'interest-calculator': () => import('./calculators/InterestTool'),
+  'scientific-calculator': () => import('./calculators/ScientificTool'),
+  'date-calculator': () => import('./calculators/DateTool'),
+  'bmi-calculator': () => import('./calculators/BmiTool'),
+
+  // Generators & scanning
+  'qr-generator': () => import('./generators/QrGeneratorTool'),
+  'barcode-generator': () => import('./generators/BarcodeTool'),
+  'qr-reader': () => import('./generators/QrReaderTool'),
+
+  // Productivity
+  'notes': () => import('./productivity/NotesTool'),
+  'todo-list': () => import('./productivity/TodoTool'),
+  'timer': () => import('./productivity/TimerTool'),
 
   // Files
   'file-info': () => import('./files/FileInfoTool'),

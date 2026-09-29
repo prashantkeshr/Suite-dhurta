@@ -10,7 +10,7 @@ A privacy-first productivity suite that runs entirely in the browser. Images, PD
 
 ## Status
 
-Phases 1 (foundation), 2 (images), 3 (PDF core) and 4 (text & data) are complete, plus working tools pulled forward from later phases — 71 tools in total:
+Phases 1 (foundation), 2 (images), 3 (PDF core), 4 (text & data) and 5 (productivity) are complete, plus working tools pulled forward from later phases — 81 tools in total:
 
 | Area | Available now | Coming soon |
 |---|---|---|
@@ -18,12 +18,14 @@ Phases 1 (foundation), 2 (images), 3 (PDF core) and 4 (text & data) are complete
 | PDF | Page thumbnails (pdf.js), merge, split/extract, rotate, delete, organize (reorder/duplicate/blank pages), watermark (incl. Hindi), page numbers, visual signature, PDF → image, PDF → text, metadata view/strip, image → PDF | Compress, password protect, compare, OCR, Office conversions |
 | Text & documents | Word/character counter (Hindi-aware), case converter, line cleaner, find & replace, slug, lorem ipsum, text diff (lines/words/chars, .patch export), Markdown editor (sanitised preview, HTML export), Markdown → PDF and Text → PDF (browser print engine, Hindi supported) | Rich text editor |
 | Developer | JSON format/validate/minify + tree view, YAML ↔ JSON, XML format/validate/minify, code formatter (Prettier: HTML/CSS/SCSS/Less/JS/TS/JSON/Markdown/YAML/GraphQL; SQL with dialects), Base64, URL, HTML entities, URL/UTM parser, JWT decoder, regex tester, colour + contrast, HTTP header parser + security checklist, user-agent info (beta), CSS gradient and box-shadow generators | Code minifier |
-| Security | Password, UUID, random token, SHA-1/256/384/512 (text + files) | Passphrase, QR |
+| Security | Password, UUID, random token, SHA-1/256/384/512 (text + files), **QR code reader** (image or camera; shows the real destination with warnings for http, shorteners, punycode look-alikes, `user@host` tricks; UPI and Wi-Fi codes decoded; links never auto-open) | Passphrase |
+| Generators | **Branded QR code generator** — link, text, Wi-Fi, UPI payment, contact (vCard), email, SMS, phone; logo in the centre (modules cleared, ECC H), square/rounded/dots/fluid dots, square/rounded/circle/leaf corners, colours, gradient, transparent background, caption frame, “save as my brand style”; every design is re-decoded (scan check) with contrast/inversion/logo-size warnings; SVG and PNG up to 4096 px. **Barcode generator** — Code 128, EAN-13/8, UPC-A, Code 39, ITF-14, Codabar with GS1 check digits; SVG/PNG. | — |
 | Data | CSV ↔ JSON, CSV viewer/editor (virtualised grid, sort, filter, edit, undo, dedupe, split/merge columns, formula-safe export), spreadsheet viewer (XLSX/XLS/ODS → CSV/JSON, workbook properties) | Excel → PDF |
-| Calculators | Percentage/discount/profit, GST (2025 slabs), EMI + schedule, unit converter (13 quantities) | Scientific, interest, date/age, BMI |
+| Calculators | Percentage/discount/profit, GST (2025 slabs), EMI + schedule, simple & compound interest (FD/RD, monthly deposits, EAR, yearly table), scientific (safe parser: trig in deg/rad, logs, roots, factorial, nCr/nPr, implicit multiplication, history), date & age (exact age, next birthday, days/working days between dates, month-end-safe add/subtract), BMI (WHO and Asian-Indian cut-offs, healthy range), unit converter (13 quantities) | — |
+| Productivity | Notes (autosave, search, pin, .md/.txt export, JSON backup/restore), to-do list (due dates, priorities, overdue, filters, CSV/JSON), timer + stopwatch with laps + Pomodoro (sound, optional notification, accurate in background tabs). Saved only in this browser; synced between open tabs | Rich text editor |
 | Files | File info (magic-byte detection, SHA-256, duplicates), create ZIP, extract ZIP | — |
 
-Next phases: productivity tools (5), PWA/offline (6). See [ARCHITECTURE.md](ARCHITECTURE.md#roadmap).
+Next phase: PWA/offline (6). See [ARCHITECTURE.md](ARCHITECTURE.md#roadmap).
 
 ## Getting started
 

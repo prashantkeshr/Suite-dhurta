@@ -4,6 +4,7 @@ import { pdfTools } from './pdf';
 import { textTools } from './text';
 import { developerTools } from './developer';
 import { securityTools, dataTools, calculatorTools, fileTools } from './misc';
+import { generatorTools, productivityTools } from './productivity';
 
 export interface Category {
   id: CategoryId;
@@ -23,6 +24,7 @@ export const CATEGORIES: Category[] = [
   { id: 'security', name: 'Security & Privacy', description: 'Passwords, hashes, UUIDs and tokens.', icon: 'ShieldCheck' },
   { id: 'generators', name: 'Generators', description: 'QR codes, barcodes, gradients and more.', icon: 'Sparkles' },
   { id: 'calculators', name: 'Calculators', description: 'Percentages, GST, EMI and more, with formulas shown.', icon: 'Calculator' },
+  { id: 'productivity', name: 'Productivity', description: 'Notes, to-do lists and timers — saved only on this device.', icon: 'ListChecks' },
   { id: 'converters', name: 'Unit Converters', description: 'Convert between units of measurement.', icon: 'Ruler' },
   { id: 'files', name: 'File Utilities', description: 'File type detection, hashing and ZIP archives.', icon: 'Folder' },
 ];
@@ -35,6 +37,8 @@ export const TOOLS: ToolDefinition[] = [
   ...securityTools,
   ...dataTools,
   ...calculatorTools,
+  ...generatorTools,
+  ...productivityTools,
   ...fileTools,
 ];
 

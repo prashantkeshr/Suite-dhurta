@@ -189,7 +189,7 @@ export default function SettingsPage() {
         open={confirmReset}
         onClose={() => setConfirmReset(false)}
         title="Clear all local data?"
-        description="Settings, favorites, history and reminders stored in this browser will be deleted. This cannot be undone."
+        description="Settings, favorites, history, reminders, notes, tasks and saved QR styles stored in this browser will be deleted. This cannot be undone — back up notes and tasks first."
         footer={
           <>
             <Button onClick={() => setConfirmReset(false)}>{t('action.cancel')}</Button>

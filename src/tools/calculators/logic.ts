@@ -150,3 +150,106 @@ export function formatValue(v: number): string {
   if (abs >= 1e15 || abs < 1e-6) return v.toExponential(6).replace(/\.?0+e/, 'e');
   return Number(v.toPrecision(10)).toLocaleString(undefined, { maximumFractionDigits: 10 });
 }
+
+/* ---------- Interest ---------- */
+
+/** Compounding periods per year; 0 = continuous. */
+export type Compounding = 1 | 2 | 4 | 12 | 365 | 0;
+
+export interface InterestRow {
+  year: number;
+  deposited: number;
+  interest: number;
+  balance: number;
+}
+
+export interface InterestResult {
+  simpleInterest: number;
+  simpleTotal: number;
+  maturity: number;
+  deposited: number;
+  interest: number;
+  /** Effective annual rate (%). */
+  ear: number;
+  rows: InterestRow[];
+}
+
+/**
+ * Compound growth of a lump sum plus optional deposits at the end of every
+ * month. Monthly deposits grow at the monthly rate equivalent to the chosen
+ * compounding, so the maths stays exact for any compounding frequency.
+ */
+export function interest(principal: number, annualRatePct: number, years: number, compounding: Compounding, monthly = 0): InterestResult {
+  if (!(principal >= 0) || !(years > 0) || !(annualRatePct >= 0) || !(monthly >= 0)) throw new Error('Enter a positive amount, rate and period.');
+  if (principal === 0 && monthly === 0) throw new Error('Enter a starting amount or a monthly deposit.');
+  const r = annualRatePct / 100;
+  const growth = (t: number) => (compounding === 0 ? Math.exp(r * t) : (1 + r / compounding) ** (compounding * t));
+  const i = growth(1 / 12) - 1; // equivalent monthly rate
+  const fvDeposits = (months: number) => (i === 0 ? monthly * months : monthly * (((1 + i) ** months - 1) / i));
+  const at = (t: number) => {
+    const months = Math.floor(t * 12 + 1e-9);
+    const balance = principal * growth(t) + fvDeposits(months);
+    const deposited = principal + monthly * months;
+    return { deposited, balance, interest: balance - deposited };
+  };
+  const rows: InterestRow[] = [];
+  for (let y = 1; y <= Math.floor(years); y++) rows.push({ year: y, ...at(y) });
+  if (years % 1 > 1e-9) rows.push({ year: +years.toFixed(2), ...at(years) });
+  const end = at(years);
+  const simpleInterest = principal * r * years;
+  return {
+    simpleInterest,
+    simpleTotal: principal + simpleInterest,
+    maturity: end.balance,
+    deposited: end.deposited,
+    interest: end.interest,
+    ear: (growth(1) - 1) * 100,
+    rows,
+  };
+}
+
+/* ---------- BMI ---------- */
+
+export type BmiScale = 'who' | 'asian';
+
+export interface BmiBand {
+  label: string;
+  min: number;
+  tone: 'info' | 'success' | 'warning' | 'error';
+}
+
+/** WHO adult classes, and the lower cut-offs recommended for Asian Indians (Misra et al., 2009; WHO expert consultation, 2004). */
+export const BMI_BANDS: Record<BmiScale, BmiBand[]> = {
+  who: [
+    { label: 'Underweight', min: 0, tone: 'info' },
+    { label: 'Healthy weight', min: 18.5, tone: 'success' },
+    { label: 'Overweight', min: 25, tone: 'warning' },
+    { label: 'Obesity class I', min: 30, tone: 'error' },
+    { label: 'Obesity class II', min: 35, tone: 'error' },
+    { label: 'Obesity class III', min: 40, tone: 'error' },
+  ],
+  asian: [
+    { label: 'Underweight', min: 0, tone: 'info' },
+    { label: 'Healthy weight', min: 18.5, tone: 'success' },
+    { label: 'Overweight', min: 23, tone: 'warning' },
+    { label: 'Obesity', min: 25, tone: 'error' },
+  ],
+};
+
+export function bmi(weightKg: number, heightCm: number) {
+  if (!(weightKg > 0) || !(heightCm > 0)) throw new Error('Enter your weight and height.');
+  const m = heightCm / 100;
+  return weightKg / (m * m);
+}
+
+export function bmiBand(value: number, scale: BmiScale): BmiBand {
+  const bands = BMI_BANDS[scale];
+  return [...bands].reverse().find((b) => value >= b.min) ?? bands[0];
+}
+
+/** Weight range (kg) for a healthy BMI at this height. */
+export function healthyRange(heightCm: number, scale: BmiScale): [number, number] {
+  const m2 = (heightCm / 100) ** 2;
+  const upper = scale === 'asian' ? 22.9 : 24.9;
+  return [18.5 * m2, upper * m2];
+}

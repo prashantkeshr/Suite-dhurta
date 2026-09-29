@@ -18,6 +18,7 @@ export type CategoryId =
   | 'security'
   | 'generators'
   | 'calculators'
+  | 'productivity'
   | 'converters'
   | 'files';
 

@@ -46,7 +46,9 @@ export function toolFaqs(t: ToolDefinition): Faq[] {
     faqs.push(
       takesFiles(t)
         ? { q: 'Are my files uploaded to a server?', a: `No. ${APP.name} processes your files inside your own browser. They are not uploaded, stored or seen by anyone, and they are discarded when you close the page.` }
-        : { q: 'Is my data sent anywhere?', a: `No. Everything you enter is processed inside your browser and is not sent to a server.` },
+        : t.requires?.includes('indexedDB')
+          ? { q: 'Where is my data saved?', a: `Only in your own browser on this device (IndexedDB). It is never uploaded or synced, so nobody else can read it — and clearing the site's data deletes it. Use “Back up” to keep a copy.` }
+          : { q: 'Is my data sent anywhere?', a: `No. Everything you enter is processed inside your browser and is not sent to a server.` },
     );
   } else if (t.externalService) {
     faqs.push({
@@ -85,6 +87,11 @@ export function toolSteps(t: ToolDefinition): string[] {
       `Start ${t.actionLabel ? `“${t.actionLabel}”` : 'processing'} — it runs inside your browser.`,
       'Preview the result and download it.',
     ];
+  }
+  if (t.category === 'productivity') {
+    return t.id === 'timer'
+      ? ['Choose Timer, Stopwatch or Pomodoro.', 'Set the time and press Start — a sound plays when time is up.', 'Keep the tab open; it keeps counting while you use other tabs.']
+      : ['Open the tool — there is nothing to install and no account.', `Add your ${t.id === 'notes' ? 'notes' : 'tasks'}; everything saves automatically in your browser.`, 'Use “Back up” to download a copy or move it to another device.'];
   }
   if (t.category === 'calculators' || t.category === 'converters') return ['Enter your values.', 'The result updates instantly, with the formula shown.', 'Copy the result if you need it.'];
   if (t.intents.includes('create')) return ['Choose the options you want.', 'The result is generated instantly in your browser.', 'Copy it or download it.'];
@@ -141,6 +148,7 @@ const APP_CATEGORY: Record<string, string> = {
   security: 'SecurityApplication',
   generators: 'DesignApplication',
   calculators: 'FinanceApplication',
+  productivity: 'BusinessApplication',
   converters: 'UtilitiesApplication',
   files: 'UtilitiesApplication',
 };

@@ -6,11 +6,11 @@ import { Button, Card, Segmented, Select } from '@/components/ui/primitives';
 import { Formula, CopyButton, DownloadTextButton } from '@/components/tools/common';
 import { emi, gst, percentOf, whatPercent, percentChange, UNIT_CATEGORIES, convertUnit, formatValue } from './logic';
 
-const num = (s: string) => (s.trim() === '' ? NaN : Number(s.replace(/,/g, '')));
-const inr = (v: number) => (Number.isFinite(v) ? v.toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 2 }) : '—');
-const plain = (v: number, d = 4) => (Number.isFinite(v) ? v.toLocaleString(undefined, { maximumFractionDigits: d }) : '—');
+export const num = (s: string) => (s.trim() === '' ? NaN : Number(s.replace(/,/g, '')));
+export const inr = (v: number) => (Number.isFinite(v) ? v.toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 2 }) : '—');
+export const plain = (v: number, d = 4) => (Number.isFinite(v) ? v.toLocaleString(undefined, { maximumFractionDigits: d }) : '—');
 
-function NumField({ id, label, value, onChange, suffix }: { id: string; label: string; value: string; onChange: (v: string) => void; suffix?: string }) {
+export function NumField({ id, label, value, onChange, suffix }: { id: string; label: string; value: string; onChange: (v: string) => void; suffix?: string }) {
   return (
     <div>
       <label htmlFor={id} className="label">
@@ -24,7 +24,7 @@ function NumField({ id, label, value, onChange, suffix }: { id: string; label: s
   );
 }
 
-function Result({ label, value, big }: { label: string; value: ReactNode; big?: boolean }) {
+export function Result({ label, value, big }: { label: string; value: ReactNode; big?: boolean }) {
   return (
     <div className="rounded-lg border border-line bg-surface p-3">
       <p className="text-xs text-muted">{label}</p>

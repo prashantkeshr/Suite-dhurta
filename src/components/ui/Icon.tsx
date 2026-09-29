@@ -2,9 +2,9 @@ import {
   Activity, AppWindow, Barcode, Binary, Blend, Braces, Calculator, CalendarDays, CaseSensitive, Code, Combine, Crop, Dices,
   Eraser, ExternalLink, FileArchive, FileCode, FileImage, FileJson, FileMinus, FilePen, FileSearch, FileText, FileType,
   Fingerprint, FlipHorizontal2, Folder, GitCompare, Globe, Hash, Image, Info, KeyRound, KeySquare, Landmark, LayoutGrid,
-  LetterText, Link, Link2, ListFilter, ListOrdered, Lock, Minimize2, PackageOpen, Palette, PenTool, Percent, Pilcrow,
+  LetterText, Link, Link2, ListChecks, ListFilter, ListOrdered, Lock, Minimize2, PackageOpen, Palette, PenTool, Percent, Pilcrow,
   Presentation, QrCode, Receipt, Regex, Repeat, Replace, RotateCw, Ruler, Scaling, ScanLine, ScanText, Scissors,
-  ShieldCheck, Sheet, Sparkles, Stamp, Table, TrendingUp, Type, Wrench, type LucideIcon,
+  ShieldCheck, Sheet, Sparkles, Stamp, StickyNote, Table, Timer, TrendingUp, Type, Wrench, type LucideIcon,
 } from 'lucide-react';
 
 /**
@@ -15,9 +15,9 @@ const ICONS: Record<string, LucideIcon> = {
   Activity, AppWindow, Barcode, Binary, Blend, Braces, Calculator, CalendarDays, CaseSensitive, Code, Combine, Crop, Dices,
   Eraser, ExternalLink, FileArchive, FileCode, FileImage, FileJson, FileMinus, FilePen, FileSearch, FileText, FileType,
   Fingerprint, FlipHorizontal2, Folder, GitCompare, Globe, Hash, Image, Info, KeyRound, KeySquare, Landmark, LayoutGrid,
-  LetterText, Link, Link2, ListFilter, ListOrdered, Lock, Minimize2, PackageOpen, Palette, PenTool, Percent, Pilcrow,
+  LetterText, Link, Link2, ListChecks, ListFilter, ListOrdered, Lock, Minimize2, PackageOpen, Palette, PenTool, Percent, Pilcrow,
   Presentation, QrCode, Receipt, Regex, Repeat, Replace, RotateCw, Ruler, Scaling, ScanLine, ScanText, Scissors,
-  ShieldCheck, Sheet, Sparkles, Stamp, Table, TrendingUp, Type,
+  ShieldCheck, Sheet, Sparkles, Stamp, StickyNote, Table, Timer, TrendingUp, Type,
 };
 
 export const hasIcon = (name: string) => name in ICONS;

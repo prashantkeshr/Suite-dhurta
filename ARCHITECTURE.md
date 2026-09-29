@@ -104,6 +104,18 @@ Detection trusts content over names: a PNG renamed `.jpg` is detected as PNG and
 | `sql-formatter` | Code formatter (SQL) | Dialect-aware SQL formatting |
 | SheetJS 0.20.3 (from cdn.sheetjs.com) | Spreadsheet viewer | The npm registry copy (0.18.5) is outdated with known vulnerabilities; 0.20.3 is installed from SheetJS's official tarball. Formulas/HTML are not parsed; macros never run |
 
+### Phase 5 libraries and design
+
+| Library | Used by | Why |
+|---|---|---|
+| `qrcode` (MIT) | QR generator | Computes the QR module matrix only; drawing is done by `tools/generators/qrRender.ts`, so dot/corner styles, gradient, logo and frame are possible. The SVG is self-contained (the logo is embedded as a data URL) and is rasterised for PNG |
+| `jsqr` (Apache-2.0) | QR reader, generator scan check | Pure-JS decoder. The reader tries the browser's native `BarcodeDetector` first (which also reads 1-D barcodes) and falls back to jsQR |
+| `jsbarcode` (MIT) | Barcode generator | SVG output; GS1 check digits are computed and validated in `tools/generators/barcode.ts` |
+
+The generator's **scan check** renders the exact design at camera-like sizes and decodes it again; a design only reports "passed" when the decoded text equals the input. Unit tests do the same in Node with `sharp` for every dot/corner style, a gradient + logo + caption design, and Hindi/emoji text.
+
+Notes and tasks use `tools/productivity/usePersistentList`: IndexedDB via the existing key-value store, debounced saves flushed on `pagehide`, a `BroadcastChannel` so other open tabs reload, and a one-time `navigator.storage.persist()` request. The timer derives time from `Date.now()` and fires the alarm with a single timeout at the end time, so background-tab throttling does not make it drift.
+
 "To PDF" tools (Markdown, text) print a sanitised standalone HTML document through a hidden iframe with a restrictive CSP. The browser's print engine gives correct shaping for Hindi and other scripts and selectable text, which a JavaScript PDF writer can't match without shipping large font files.
 
 The CSV editor and spreadsheet viewer share `components/data/DataGrid`, a virtualised grid (only visible rows are in the DOM) that renders cells as text. Table operations live in `tools/data/table.ts` and are unit-tested.
@@ -190,6 +202,6 @@ Browser flows (worker image conversion, crop, watermark, favicon/ICO, PDF merge/
 | 2 Images | Done |
 | 3 PDF core | Done (compress, protect, compare remain planned) |
 | 4 Text & data | Done |
-| 5 Productivity | Calculators partly done; notes, tasks, timer, QR, generators next |
+| 5 Productivity | Done: QR generator/reader, barcodes, interest/scientific/date/BMI calculators, notes, to-do, timer |
 | 6 PWA | Service worker, install, offline shell, per-tool offline indicators |
 | 7 Advanced documents | OCR and Office conversions, only if quality is proven |
