@@ -11,7 +11,7 @@ import { t } from '@/i18n';
 import { Button, Card, Progress, Segmented } from '@/components/ui/primitives';
 import { ErrorState } from '@/components/ui/states';
 import { FileDropzone } from '@/components/files/FileDropzone';
-import { useSaver } from '@/components/tools/common';
+import { useSaver, ContinueButton } from '@/components/tools/common';
 import { loadPdf, extractPages, rotatePages, deletePages, readInfo } from './engine';
 import { parsePageRanges, formatPageList, chunkPages } from './ranges';
 import { useJob } from './useJob';
@@ -289,6 +289,7 @@ export default function PdfPagesTool({ tool, initialFiles }: { tool: ToolDefinit
                 <Button variant="primary" className="w-full justify-center" icon={<Download size={16} />} onClick={downloadResult}>
                   {job.result.length === 1 ? t('action.download') : t('action.downloadAll')}
                 </Button>
+                <ContinueButton size="md" files={job.result} />
                 <p className="text-xs text-muted">Your original file is unchanged.</p>
               </div>
             )}

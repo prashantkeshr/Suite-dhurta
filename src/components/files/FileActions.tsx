@@ -48,7 +48,7 @@ function Thumb({ d }: { d: DetectedFile }) {
  * "What can I do with this file?" — detects the files and suggests tools from
  * the registry. Tools that accept every selected file are listed first.
  */
-export function FileActions({ files, onClear }: { files: File[]; onClear: () => void }) {
+export function FileActions({ files, onClear, onOpen, compact }: { files: File[]; onClear: () => void; onOpen?: () => void; compact?: boolean }) {
   const [detected, setDetected] = useState<DetectedFile[] | null>(null);
   const navigate = useNavigate();
   const give = useHandoff((s) => s.give);
@@ -76,12 +76,13 @@ export function FileActions({ files, onClear }: { files: File[]; onClear: () => 
   const open = (tool: ToolDefinition) => {
     const accepted = (detected ?? []).filter((d) => !d.empty && acceptsFile(tool, d.mime, d.name)).map((d) => d.file);
     give(accepted);
+    onOpen?.();
     navigate(`/tools/${tool.id}`);
   };
 
   return (
-    <section aria-labelledby="fa-title" className="card animate-in p-4 sm:p-5">
-      <div className="mb-4 flex items-center justify-between gap-2">
+    <section aria-labelledby="fa-title" className={compact ? 'animate-in' : 'card animate-in p-4 sm:p-5'}>
+      <div className={compact ? 'hidden' : 'mb-4 flex items-center justify-between gap-2'}>
         <h2 id="fa-title" className="text-base font-semibold">
           {t('detect.title')}
         </h2>
@@ -90,8 +91,8 @@ export function FileActions({ files, onClear }: { files: File[]; onClear: () => 
         </Button>
       </div>
 
-      <p className="label">{t('detect.detected')}</p>
-      <div className="mb-5 grid gap-3 sm:grid-cols-2">
+      <p className={compact ? 'hidden' : 'label'}>{t('detect.detected')}</p>
+      <div className={compact ? 'hidden' : 'mb-5 grid gap-3 sm:grid-cols-2'}>
         {detected ? detected.slice(0, 6).map((d, i) => <Thumb key={i} d={d} />) : <p className="text-sm text-muted">Analyzing files…</p>}
         {detected && detected.length > 6 && <p className="self-center text-sm text-muted">and {detected.length - 6} more</p>}
       </div>

@@ -12,6 +12,7 @@ import { t } from '@/i18n';
 import { CommandPalette, usePalette } from './CommandPalette';
 import { Brand } from '@/components/brand/Brand';
 import { useHandoff } from '@/filesystem/handoff';
+import { FileTray, FileTrayButton } from '@/components/files/FileTray';
 import { usePwa, promptInstall } from '@/pwa/pwa';
 
 const counts = Object.fromEntries(CATEGORIES.map((c) => [c.id, TOOLS.filter((x) => x.category === c.id && isUsable(x)).length]));
@@ -186,6 +187,7 @@ export function AppShell() {
           </button>
           <div className="flex items-center gap-1 md:ml-auto">
             <PwaControls />
+            <FileTrayButton />
             <ThemeButton />
             <Link to="/settings" className="hidden h-10 w-10 items-center justify-center rounded-md text-muted hover:bg-surface2 hover:text-fg sm:flex" aria-label={t('nav.settings')} title={t('nav.settings')}>
               <Settings size={18} />
@@ -249,6 +251,7 @@ export function AppShell() {
       </Drawer>
 
       <CommandPalette />
+      <FileTray />
     </div>
   );
 }

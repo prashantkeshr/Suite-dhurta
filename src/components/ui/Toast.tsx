@@ -39,7 +39,7 @@ const useToasts = create<ToastState>((set, get) => ({
 
 /** Show a notification from anywhere (components or plain functions). */
 export const toast = {
-  success: (m: string, d?: string) => useToasts.getState().push('success', m, d),
+  success: (m: string, d?: string, action?: ToastAction) => useToasts.getState().push('success', m, d, action),
   /** `action` adds a button; `sticky` keeps the toast until it is dismissed or used. */
   info: (m: string, d?: string, action?: ToastAction, sticky?: boolean) => useToasts.getState().push('info', m, d, action, sticky),
   warning: (m: string, d?: string) => useToasts.getState().push('warning', m, d),

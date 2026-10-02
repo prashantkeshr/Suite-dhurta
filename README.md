@@ -25,6 +25,8 @@ Phases 1 (foundation), 2 (images), 3 (PDF core), 4 (text & data), 5 (productivit
 | Productivity | Notes (autosave, search, pin, .md/.txt export, JSON backup/restore), to-do list (due dates, priorities, overdue, filters, CSV/JSON), timer + stopwatch with laps + Pomodoro (sound, optional notification, accurate in background tabs). Saved only in this browser; synced between open tabs | Rich text editor |
 | Files | File info (magic-byte detection, SHA-256, duplicates), create ZIP, extract ZIP | — |
 
+**Chain tools:** every file you open and every result you make goes to **Your files** (header). After any conversion or edit, “Use in another tool” lists the tools that accept the result — e.g. resize → compress → image to PDF → merge — with no download in between. Files stay only in the tab's memory.
+
 **App & offline:** installable (Chrome/Edge/Android; iPhone via “Add to Home Screen”), opens and works without internet. Every tool you open is saved on the device; each tool page shows **Available offline** only when all of its files are cached, otherwise a **Save for offline** button with the download size. Settings → App & offline saves all tools (≈6 MB) and keeps them updated after new releases. The installed app can open images, PDFs, CSV, JSON, ZIP and text files from the OS (“Open with”) and receives files from the Android share sheet — still processed locally.
 
 Next phase: advanced documents (7), only where quality can be proven. See [ARCHITECTURE.md](ARCHITECTURE.md#roadmap).

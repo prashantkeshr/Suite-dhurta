@@ -18,7 +18,7 @@ import { Dialog } from '@/components/ui/Dialog';
 import { toast } from '@/components/ui/Toast';
 import { FileDropzone } from '@/components/files/FileDropzone';
 import { QueueList } from '@/components/files/QueueList';
-import { useSaver } from '@/components/tools/common';
+import { useSaver, ContinueButton } from '@/components/tools/common';
 import { processImage } from './engine';
 import { resolveOutputMime, type ImageOps, type ImageResult, type OutputMime, type ResizeSpec, type Rotation } from './ops';
 import { useInitialFiles } from '@/hooks/useInitialFiles';
@@ -373,6 +373,7 @@ export default function ImageBatchTool({ tool, initialFiles }: { tool: ToolDefin
                     {t('action.download')}
                   </Button>
                 )}
+                {complete.length > 0 && !busy && <ContinueButton size="md" files={complete.map((j) => ({ blob: j.result!.blob, name: j.result!.name }))} label={complete.length > 1 ? `Use ${complete.length} results in another tool` : 'Use in another tool'} />}
               </div>
             </Card>
           </aside>

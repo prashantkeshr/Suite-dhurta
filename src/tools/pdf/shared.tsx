@@ -8,7 +8,7 @@ import { t } from '@/i18n';
 import { Button, Progress } from '@/components/ui/primitives';
 import { ErrorState } from '@/components/ui/states';
 import { FileDropzone } from '@/components/files/FileDropzone';
-import { useSaver } from '@/components/tools/common';
+import { useSaver, ContinueButton } from '@/components/tools/common';
 import { loadPdf, readInfo } from './engine';
 import { parsePageRanges } from './ranges';
 import { usePdfPreview } from './usePdfPreview';
@@ -132,6 +132,7 @@ export function PdfResult({
       <Button variant="primary" className="w-full justify-center" icon={<Download size={16} />} onClick={() => save(resultFile, filename)}>
         {t('action.download')}
       </Button>
+      <ContinueButton files={[{ blob: resultFile, name: filename }]} size="md" />
       <p className="text-xs text-muted">Your original file is unchanged.</p>
     </div>
   );

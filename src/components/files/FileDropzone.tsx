@@ -8,6 +8,10 @@ import { t } from '@/i18n';
 import { Button } from '@/components/ui/primitives';
 import { Dialog } from '@/components/ui/Dialog';
 import { toast } from '@/components/ui/Toast';
+import { useTray } from '@/filesystem/tray';
+
+/** Opened files also go to the file tray so they can be reused in other tools. */
+const remember = (files: File[]) => void useTray.getState().add(files, 'input');
 
 type Entry = { isFile: boolean; isDirectory: boolean; name: string; file?: (cb: (f: File) => void, err: (e: unknown) => void) => void; createReader?: () => { readEntries: (cb: (e: Entry[]) => void, err: (e: unknown) => void) => void } };
 
@@ -69,7 +73,10 @@ export function FileDropzone({ onFiles, accept, multiple = true, acceptLabel, co
       const files = multiple ? ok : ok.slice(0, 1);
       if (files.length === 0) return;
       if (files.some((f) => f.size > warnBytes)) setPending(files);
-      else onFiles(files);
+      else {
+        remember(files);
+        onFiles(files);
+      }
     },
     [multiple, onFiles, warnBytes],
   );
@@ -140,7 +147,10 @@ export function FileDropzone({ onFiles, accept, multiple = true, acceptLabel, co
               variant="primary"
               data-autofocus
               onClick={() => {
-                if (pending) onFiles(pending);
+                if (pending) {
+                  remember(pending);
+                  onFiles(pending);
+                }
                 setPending(null);
               }}
             >

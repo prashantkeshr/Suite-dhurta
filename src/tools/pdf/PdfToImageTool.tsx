@@ -1,3 +1,4 @@
+import { ContinueButton } from '@/components/tools/common';
 import { useState } from 'react';
 import { Download, Images } from 'lucide-react';
 import type { ToolDefinition } from '@/types/tool';
@@ -103,6 +104,7 @@ export default function PdfToImageTool({ tool, initialFiles }: { tool: ToolDefin
                 <Button variant="primary" className="w-full justify-center" icon={<Download size={16} />} onClick={() => saveMany(job.result!, outputName(src.source!.file.name, 'images', 'zip'), { useDialog })}>
                   {job.result.length > 1 ? t('action.downloadAll') : t('action.download')}
                 </Button>
+                <ContinueButton size="md" files={job.result} />
               </div>
             )}
           </Card>

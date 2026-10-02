@@ -100,7 +100,7 @@ export function Dialog({
 }
 
 /** Side drawer on desktop, bottom sheet on mobile. */
-export function Drawer({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
+export function Drawer({ open, onClose, title, children, side = 'left' }: { open: boolean; onClose: () => void; title: string; children: ReactNode; side?: 'left' | 'right' }) {
   const ref = useModal(open, onClose);
   if (!open) return null;
   return createPortal(
@@ -111,7 +111,10 @@ export function Drawer({ open, onClose, title, children }: { open: boolean; onCl
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="animate-sheet absolute inset-x-0 bottom-0 max-h-[85vh] overflow-auto rounded-t-xl border border-line bg-surface pb-safe md:inset-y-0 md:left-0 md:right-auto md:w-80 md:max-h-none md:rounded-none"
+        className={clsx(
+          'animate-sheet absolute inset-x-0 bottom-0 max-h-[85vh] overflow-auto rounded-t-xl border border-line bg-surface pb-safe md:inset-y-0 md:max-h-none md:rounded-none',
+          side === 'left' ? 'md:left-0 md:right-auto md:w-80' : 'md:left-auto md:right-0 md:w-[420px]',
+        )}
       >
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-surface px-4 py-3">
           <h2 className="text-sm font-semibold">{title}</h2>

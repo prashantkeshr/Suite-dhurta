@@ -1,11 +1,12 @@
 import { useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, ChevronRight, Copy, Download } from 'lucide-react';
+import { ArrowRightLeft, Check, ChevronRight, Copy, Download } from 'lucide-react';
 import { copyText, saveFile } from '@/conversion/download';
 import { useStore } from '@/storage/store';
 import { t } from '@/i18n';
 import { Button } from '@/components/ui/primitives';
 import { toast } from '@/components/ui/Toast';
+import { useTray, asFile, currentToolId } from '@/filesystem/tray';
 
 export function Breadcrumb({ items }: { items: { label: string; to?: string }[] }) {
   return (
@@ -49,13 +50,37 @@ export function CopyButton({ text, label = t('action.copy'), size = 'sm' as cons
   );
 }
 
-/** Save a generated blob, honouring the user's save-dialog preference. */
+/**
+ * Save a generated blob, honouring the user's save-dialog preference. The
+ * result also goes to the file tray, so it can be used in another tool.
+ */
 export function useSaver() {
   const useDialog = useStore((s) => s.settings.useSaveDialog);
   return async (blob: Blob, name: string) => {
+    const ids = useTray.getState().add([asFile(blob, name)], 'result', currentToolId());
     const r = await saveFile(blob, name, { useDialog });
-    if (r === 'saved') toast.success(`Saved ${name}`);
+    if (r === 'cancelled') return;
+    const next = { label: 'Use in another tool', onClick: () => useTray.getState().show(ids) };
+    if (r === 'saved') toast.success(`Saved ${name}`, undefined, next);
+    else toast.success(`Downloaded ${name}`, 'You can also continue with it in another tool.', next);
   };
+}
+
+/** Send results straight to the file tray and offer tools to continue with — no download needed. */
+export function ContinueButton({ files, label = 'Use in another tool', size = 'sm' }: { files: { blob: Blob; name: string }[]; label?: string; size?: 'sm' | 'md' }) {
+  return (
+    <Button
+      size={size}
+      disabled={!files.length}
+      icon={<ArrowRightLeft size={14} />}
+      onClick={() => {
+        const ids = useTray.getState().add(files.map((f) => asFile(f.blob, f.name)), 'result', currentToolId());
+        useTray.getState().show(ids);
+      }}
+    >
+      {label}
+    </Button>
+  );
 }
 
 export function DownloadTextButton({ text, filename, mime = 'text/plain', label = t('action.download') }: { text: string; filename: string; mime?: string; label?: string }) {

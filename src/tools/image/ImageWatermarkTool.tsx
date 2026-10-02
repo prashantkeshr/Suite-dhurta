@@ -16,7 +16,7 @@ import { Button, Card, Segmented, Toggle } from '@/components/ui/primitives';
 import { toast } from '@/components/ui/Toast';
 import { FileDropzone } from '@/components/files/FileDropzone';
 import { QueueList } from '@/components/files/QueueList';
-import { useSaver } from '@/components/tools/common';
+import { useSaver, ContinueButton } from '@/components/tools/common';
 import { AnchorPicker } from '@/tools/pdf/AnchorPicker';
 import type { Anchor } from '@/tools/pdf/stamp';
 import { resolveOutputMime } from './ops';
@@ -235,6 +235,7 @@ export default function ImageWatermarkTool({ tool, initialFiles }: { tool: ToolD
                 {t('action.downloadAll')}
               </Button>
             )}
+            {done.length > 0 && !busy && <ContinueButton size="md" files={done.map((j) => j.result!)} />}
           </Card>
         </div>
       )}
