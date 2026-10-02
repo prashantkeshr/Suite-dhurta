@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Layers, Trash2, Download, FileQuestion, X } from 'lucide-react';
+import { Layers, Trash2, Download, FileQuestion, X, Link2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useHandoff } from '@/filesystem/handoff';
 import { clsx } from 'clsx';
 import { useTray, type TrayItem } from '@/filesystem/tray';
 import { getTool } from '@/tools/registry';
@@ -39,6 +41,7 @@ function Row({ item, selected, onToggle }: { item: TrayItem; selected: boolean; 
   const remove = useTray((s) => s.remove);
   const useDialog = useStore((s) => s.settings.useSaveDialog);
   const tool = item.toolId ? getTool(item.toolId) : undefined;
+  const navigate = useNavigate();
   return (
     <li className={clsx('flex items-center gap-2.5 rounded-md px-2 py-1.5', selected && 'bg-accent/10')}>
       <input type="checkbox" checked={selected} onChange={onToggle} className="h-4 w-4 shrink-0 cursor-pointer accent-[rgb(var(--accent))]" aria-label={`Select ${item.file.name}`} />
@@ -52,6 +55,18 @@ function Row({ item, selected, onToggle }: { item: TrayItem; selected: boolean; 
             {formatBytes(item.file.size)} · {item.origin === 'input' ? 'Opened' : `Result${tool ? ` of ${tool.name}` : ''}`}
           </span>
         </span>
+      </button>
+      <button
+        onClick={() => {
+          useHandoff.getState().give([item.file]);
+          useTray.getState().hide();
+          navigate('/tools/share-link');
+        }}
+        className="rounded p-1.5 text-muted hover:bg-surface2 hover:text-fg"
+        aria-label={`Share ${item.file.name} as a link`}
+        title="Share as a link"
+      >
+        <Link2 size={15} />
       </button>
       <button onClick={() => void saveFile(item.file, item.file.name, { useDialog })} className="rounded p-1.5 text-muted hover:bg-surface2 hover:text-fg" aria-label={`Download ${item.file.name}`} title="Download">
         <Download size={15} />

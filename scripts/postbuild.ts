@@ -263,7 +263,7 @@ for (const k of TASKS) {
 pages.push(
   { path: '/privacy', title: `Privacy — How ${APP.name} Handles Your Files`, description: `${APP.name} processes files in your browser. Learn what is stored locally, what is never uploaded, and how external services are labelled.`, body: `<h1>Privacy</h1><p>${esc(APP.name)}'s own tools process files inside your browser; they are never uploaded. Settings and a short activity history are stored only on your device and can be cleared at any time.</p>`, index: true, sitemap: 'pages', priority: '0.5', changefreq: 'yearly' },
   { path: '/about', title: `About ${APP.name}`, description: `${APP.name} by ${APP.org}: a privacy-first suite of browser-based tools with no backend, no uploads and no sign-up.`, body: `<h1>About ${esc(APP.name)}</h1><p>A privacy-first collection of productivity tools built by ${esc(APP.org)}. It is a static website with no backend, no database and no accounts.</p>`, index: true, sitemap: 'pages', priority: '0.5', changefreq: 'yearly' },
-  ...['settings', 'history', 'workspace', 'diagnostics'].map((p) => ({ path: `/${p}`, title: `${p[0].toUpperCase()}${p.slice(1)} — ${APP.name}`, description: APP.tagline, body: '', index: false })),
+  ...['settings', 'history', 'workspace', 'diagnostics', 'open'].map((p) => ({ path: `/${p}`, title: `${p[0].toUpperCase()}${p.slice(1)} — ${APP.name}`, description: APP.tagline, body: '', index: false })),
 );
 
 /* ---------- Write pages ---------- */

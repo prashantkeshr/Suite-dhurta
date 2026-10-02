@@ -120,4 +120,5 @@ export const TOOL_LOADERS: Record<string, Loader> = {
   'file-info': () => import('./files/FileInfoTool'),
   'zip-creator': () => import('./files/ZipCreatorTool'),
   'zip-extractor': () => import('./files/ZipExtractorTool'),
+  'share-link': () => import('./files/ShareLinkTool'),
 };

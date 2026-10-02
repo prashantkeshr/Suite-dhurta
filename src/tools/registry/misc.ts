@@ -298,4 +298,23 @@ export const fileTools = [
     limitations: ['Encrypted ZIP files and ZIP64 archives over ~2 GB are not supported.', 'The whole archive is loaded into memory.'],
     related: ['zip-creator', 'file-info'],
   }),
+  defineTool({
+    id: 'share-link',
+    name: 'Share File via Link',
+    description: 'Put a small file, photo or note inside a link and send it — the receiver opens it to view or edit. Nothing is uploaded; optional password.',
+    category: 'files',
+    icon: 'Link2',
+    status: 'available',
+    inputTypes: ['*/*'],
+    intents: ['convert'],
+    keywords: ['share file link', 'send file without upload', 'file to link', 'image to link', 'share photo link', 'share note', 'url', 'encrypted link', 'password'],
+    aliases: ['file to url', 'share image as link', 'send photo via link'],
+    actionLabel: 'Share as link',
+    limitations: [
+      'The file travels inside the link, so links grow with the file: best for notes, text, CSV and small or reduced photos (about 1 MB at most). Large photos, PDFs and videos are too big.',
+      'Some chat apps cut very long links; open the link yourself once to check it arrived whole.',
+      'Anyone who has the link can open the file unless you add a password.',
+    ],
+    related: ['qr-generator', 'image-compressor', 'notes'],
+  }),
 ];

@@ -3,7 +3,7 @@ import { TASKS, getTask } from './tasks';
 import { TOOLS, getTool, isUsable } from '@/tools/registry';
 import { TOOL_LOADERS } from '@/tools/loaders';
 
-const APP_ROUTES = ['tools', 'category', 'workspace', 'history', 'settings', 'diagnostics', 'privacy', 'about', 'hi', 'assets', 'brand', 'share-target'];
+const APP_ROUTES = ['tools', 'category', 'workspace', 'history', 'settings', 'diagnostics', 'privacy', 'about', 'hi', 'assets', 'brand', 'share-target', 'open'];
 
 describe('task landing pages', () => {
   it('have unique slugs that never clash with app routes or tool ids', () => {
