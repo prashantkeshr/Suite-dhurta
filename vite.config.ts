@@ -18,6 +18,8 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
+    // Module → chunk graph; scripts/postbuild.ts uses it to work out which files each tool needs offline.
+    manifest: true,
     rollupOptions: {
       output: {
         manualChunks: {

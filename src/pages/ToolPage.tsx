@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Star, AlertTriangle, Loader2, WifiOff, Wifi } from 'lucide-react';
+import { Star, AlertTriangle, Loader2 } from 'lucide-react';
+import { ToolOfflineStatus } from '@/components/pwa/Offline';
 import { clsx } from 'clsx';
 import { getTool, getCategory, relatedTools, formatLabel, isUsable } from '@/tools/registry';
 import { TOOL_LOADERS } from '@/tools/loaders';
@@ -94,13 +95,7 @@ function ToolPage({ id }: { id: string }) {
           <p className="mt-1 text-[15px] text-muted">{tool.description}</p>
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
             {usable && tool.processing === 'client' && <ProcessingNotice tool={tool} compact />}
-            {usable && (
-              <span className="inline-flex items-center gap-1">
-                {tool.offline === 'no' ? <WifiOff size={13} aria-hidden /> : <Wifi size={13} aria-hidden />}
-                {/* Until the offline app shell (PWA) ships, only processing — not reloading — works without internet. */}
-                {tool.offline === 'yes' ? 'No internet needed once open' : tool.offline === 'limited' ? 'Partly works offline' : 'Needs internet'}
-              </span>
-            )}
+            {usable && <ToolOfflineStatus tool={tool} />}
             {tool.inputTypes.length > 0 && (
               <span>
                 {t('tool.formats')}: {formatLabel(tool.inputTypes)}

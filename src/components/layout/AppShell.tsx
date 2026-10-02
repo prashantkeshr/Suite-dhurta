@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { NavLink, Outlet, Link, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
-import { Home, LayoutGrid, Briefcase, History, Settings, Search, Moon, Sun, Monitor, Activity, Shield, Info } from 'lucide-react';
+import { Home, LayoutGrid, Briefcase, History, Settings, Search, Moon, Sun, Monitor, Activity, Shield, Info, WifiOff, Download } from 'lucide-react';
 import { APP } from '@/app/config';
 import { CATEGORIES, TOOLS, isUsable } from '@/tools/registry';
 import { useStore, type ThemePref } from '@/storage/store';
@@ -11,6 +11,8 @@ import { Drawer } from '@/components/ui/Dialog';
 import { t } from '@/i18n';
 import { CommandPalette, usePalette } from './CommandPalette';
 import { Brand } from '@/components/brand/Brand';
+import { useHandoff } from '@/filesystem/handoff';
+import { usePwa, promptInstall } from '@/pwa/pwa';
 
 const counts = Object.fromEntries(CATEGORIES.map((c) => [c.id, TOOLS.filter((x) => x.category === c.id && isUsable(x)).length]));
 
@@ -89,6 +91,27 @@ function ThemeButton() {
   );
 }
 
+/** Header extras: offline indicator and install button (only when the browser offers installing). */
+function PwaControls() {
+  const online = usePwa((s) => s.online);
+  const canInstall = usePwa((s) => s.canInstall);
+  return (
+    <>
+      {!online && (
+        <Link to="/settings#offline" className="flex h-8 items-center gap-1.5 rounded-full border border-warning/40 bg-warning/10 px-2.5 text-xs font-medium text-warning" title="You are offline. Tools saved on this device still work.">
+          <WifiOff size={14} aria-hidden /> Offline
+        </Link>
+      )}
+      {canInstall && (
+        <button onClick={() => void promptInstall()} className="flex h-10 items-center gap-1.5 rounded-md px-2.5 text-sm font-medium text-accent hover:bg-accent/10" title="Install Dhurta Suite as an app">
+          <Download size={16} aria-hidden /> <span className="hidden lg:inline">Install app</span>
+          <span className="sr-only lg:hidden">Install app</span>
+        </button>
+      )}
+    </>
+  );
+}
+
 const MOBILE_NAV = [
   { to: '/', label: 'nav.home', icon: Home, end: true },
   { to: '/tools', label: 'nav.tools', icon: LayoutGrid },
@@ -101,6 +124,12 @@ export function AppShell() {
   const setPalette = usePalette((s) => s.setOpen);
   const [drawer, setDrawer] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const incoming = useHandoff((s) => s.incoming);
+  // Opened or shared files are handled on the home page.
+  useEffect(() => {
+    if (incoming && location.pathname !== '/') navigate('/');
+  }, [incoming, location.pathname, navigate]);
 
   // Global shortcuts. Only Ctrl+K and "/" are always captured.
   useEffect(() => {
@@ -155,7 +184,8 @@ export function AppShell() {
             <span className="hidden flex-1 text-left sm:inline">{t('search.placeholder')}</span>
             <kbd className="kbd hidden md:inline-flex">Ctrl K</kbd>
           </button>
-          <div className="flex items-center md:ml-auto">
+          <div className="flex items-center gap-1 md:ml-auto">
+            <PwaControls />
             <ThemeButton />
             <Link to="/settings" className="hidden h-10 w-10 items-center justify-center rounded-md text-muted hover:bg-surface2 hover:text-fg sm:flex" aria-label={t('nav.settings')} title={t('nav.settings')}>
               <Settings size={18} />

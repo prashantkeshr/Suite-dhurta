@@ -10,7 +10,7 @@ A privacy-first productivity suite that runs entirely in the browser. Images, PD
 
 ## Status
 
-Phases 1 (foundation), 2 (images), 3 (PDF core), 4 (text & data) and 5 (productivity) are complete, plus working tools pulled forward from later phases — 81 tools in total:
+Phases 1 (foundation), 2 (images), 3 (PDF core), 4 (text & data), 5 (productivity) and 6 (installable app, offline) are complete, plus working tools pulled forward from later phases — 81 tools in total:
 
 | Area | Available now | Coming soon |
 |---|---|---|
@@ -25,7 +25,9 @@ Phases 1 (foundation), 2 (images), 3 (PDF core), 4 (text & data) and 5 (producti
 | Productivity | Notes (autosave, search, pin, .md/.txt export, JSON backup/restore), to-do list (due dates, priorities, overdue, filters, CSV/JSON), timer + stopwatch with laps + Pomodoro (sound, optional notification, accurate in background tabs). Saved only in this browser; synced between open tabs | Rich text editor |
 | Files | File info (magic-byte detection, SHA-256, duplicates), create ZIP, extract ZIP | — |
 
-Next phase: PWA/offline (6). See [ARCHITECTURE.md](ARCHITECTURE.md#roadmap).
+**App & offline:** installable (Chrome/Edge/Android; iPhone via “Add to Home Screen”), opens and works without internet. Every tool you open is saved on the device; each tool page shows **Available offline** only when all of its files are cached, otherwise a **Save for offline** button with the download size. Settings → App & offline saves all tools (≈6 MB) and keeps them updated after new releases. The installed app can open images, PDFs, CSV, JSON, ZIP and text files from the OS (“Open with”) and receives files from the Android share sheet — still processed locally.
+
+Next phase: advanced documents (7), only where quality can be proven. See [ARCHITECTURE.md](ARCHITECTURE.md#roadmap).
 
 ## Getting started
 

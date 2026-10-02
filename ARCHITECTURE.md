@@ -194,6 +194,28 @@ Vitest, in Node, for everything that doesn't need a DOM:
 
 Browser flows (worker image conversion, crop, watermark, favicon/ICO, PDF merge/split/organize/watermark/page numbers on rotated pages/sign/to-image/to-text, encrypted-PDF handling, hand-off from the home page, mobile layout) were verified in Chromium by generating real files in the page and inspecting the outputs. Adding Playwright end-to-end tests is on the roadmap.
 
+## Offline and installable app (Phase 6)
+
+`scripts/offline.ts` runs at the end of `postbuild.ts`. From Vite's module graph (`build.manifest`) it computes:
+
+- the **app shell** — the entry, pages and their static imports (~450 KB) plus icons, brand images and the manifest;
+- for **each tool**, the extra files it needs: its chunk, on-demand libraries (pdf.js, SheetJS, Prettier plugins…) and workers/WASM referenced by URL (found by scanning only for files outside the graph, because entry chunks list every lazy chunk for preloading).
+
+It writes `dist/offline.json` and `dist/sw.js` (from `scripts/sw-template.js`) with the version and file lists baked in. The service worker:
+
+| Request | Strategy |
+|---|---|
+| Page navigation | Network first; cached copy, then the app shell, when offline |
+| `/assets/*` (hashed, immutable) | Cache first, stored on first use (cache `ds-assets`, pruned to the current build on activate) |
+| `offline.json` | Network first |
+| Icons, manifest, brand images | Cached, refreshed in the background |
+| `POST /share-target` | Shared files held in `ds-share` until the app reads them, then deleted |
+| Other origins (Photopea, …) | Never intercepted |
+
+Cache matching uses `ignoreVary`: a file saved by the page with `fetch()` and the same file requested as a module/worker script carry different headers, and a `Vary` response header would otherwise make the offline copy miss (found in testing). A new version waits until the user chooses **Reload** in the update notice; settings, notes and tasks are untouched. Because every release renames tool chunks, a "save all" choice is remembered (`ds-meta`) and the new files are downloaded in the background after an update.
+
+`src/pwa/pwa.ts` owns registration, the install prompt, online/offline state, `launchQueue` (files opened with the installed app) and share-target hand-off to the home page. A tool page shows **Available offline** only when `isToolReady()` finds every shell and tool file in Cache Storage. Verified in a production preview by stopping the server: a saved PDF tool loaded and converted a PDF (pdf.js + worker from cache); an unsaved tool showed a clear "not saved on this device yet" error.
+
 ## Roadmap
 
 | Phase | Scope |
@@ -203,5 +225,5 @@ Browser flows (worker image conversion, crop, watermark, favicon/ICO, PDF merge/
 | 3 PDF core | Done (compress, protect, compare remain planned) |
 | 4 Text & data | Done |
 | 5 Productivity | Done: QR generator/reader, barcodes, interest/scientific/date/BMI calculators, notes, to-do, timer |
-| 6 PWA | Service worker, install, offline shell, per-tool offline indicators |
+| 6 PWA | Done: generated service worker, install prompt, offline app shell, honest per-tool offline status, save-all with refresh on update, update prompt, file handlers and share target |
 | 7 Advanced documents | OCR and Office conversions, only if quality is proven |

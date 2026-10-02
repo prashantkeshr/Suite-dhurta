@@ -39,6 +39,7 @@ export function PrivacyPage() {
           <li>Recent tools and a short activity history, such as “3 files → WebP”. File contents are never stored. You can turn history off or clear it in Settings.</li>
           <li>Reminders for upcoming tools you asked to be told about.</li>
           <li>Notes and to-do items you create in the Notes and To-Do List tools, and a QR code style you choose to save (including its logo).</li>
+          <li>The app’s own code and pages, in the browser cache, so it opens without internet. Your files are never cached. Files you share to the installed app from another app are held only until it opens them.</li>
         </ul>
         <p>
           This data is kept in IndexedDB on your device. It is not sent to a server. You can delete all of it from <Link to="/settings#privacy" className="link">Settings → Privacy</Link>, or

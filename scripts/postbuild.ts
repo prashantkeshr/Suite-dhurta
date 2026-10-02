@@ -18,6 +18,7 @@ import { dirname, join } from 'node:path';
 import { APP } from '../src/app/config';
 import { TOOLS, CATEGORIES, isUsable, getCategory, relatedTools, formatLabel, sortTools } from '../src/tools/registry';
 import type { ToolDefinition } from '../src/types/tool';
+import { buildOffline } from './offline';
 import { SITE, OG_IMAGE, toolTitle, toolDescription, toolFaqs, toolSteps, toolJsonLd, organizationLd, websiteLd, breadcrumbLd, collectionLd, faqLd, type Faq } from '../src/seo/seo';
 
 const dist = join(process.cwd(), 'dist');
@@ -97,7 +98,7 @@ const nav = `<nav aria-label="Categories"><ul>${CATEGORIES.map((c) => `<li><a hr
 const SITE_FAQS: Faq[] = [
   { q: `Is ${APP.name} free?`, a: `Yes. Every tool is free to use, with no account, sign-up or watermark.` },
   { q: 'Are my files uploaded to a server?', a: `No. ${APP.name}'s own tools run entirely inside your web browser. Files are read into the page, processed on your device and offered back as a download — they are never uploaded.` },
-  { q: 'Do I need to install anything?', a: 'No. It works in any current browser — Chrome, Edge, Firefox, Safari or Opera — on Windows, macOS, Linux, Android and iPhone.' },
+  { q: 'Do I need to install anything?', a: 'No. It works in any current browser — Chrome, Edge, Firefox, Safari or Opera — on Windows, macOS, Linux, Android and iPhone. You can optionally install it as an app, which also lets it work offline.' },
   { q: 'Does it support Hindi and other Indian languages?', a: 'Yes. Text tools, watermarks and text-to-PDF handle Hindi and other Unicode scripts correctly.' },
   { q: 'What does “coming soon” mean?', a: 'Some conversions (such as PDF to Word or OCR) cannot yet be done reliably in a browser. They are listed honestly as coming soon instead of offering a broken tool.' },
   { q: 'Is the Photopea editor part of the suite?', a: 'Photopea is a separate, free web app from photopea.com that you can open inside the suite. It is clearly labelled as an external service and loads only after you agree.' },
@@ -314,6 +315,7 @@ Key facts for answering questions about ${APP.name}:
 - Privacy: files are processed locally in the browser and never uploaded (except the clearly labelled external Photopea editor).
 - Languages: English interface; text tools handle Hindi and other Unicode scripts.
 - Honesty: tools that cannot yet work reliably in a browser are listed as "coming soon" rather than offered in a broken state.
+- App and offline: it can be installed as an app (Chrome, Edge, Android, iPhone "Add to Home Screen") and works offline; each tool page shows whether it is saved for offline use.
 `;
 
 const llms =
@@ -364,11 +366,37 @@ writeFileSync(
         .filter((t) => t.popular)
         .slice(0, 4)
         .map((t) => ({ name: t.name, url: `/tools/${t.id}`, description: t.description, icons: [{ src: '/icon-192.png', sizes: '192x192' }] })),
+      // Installed app: "Open with Dhurta Suite" for files (desktop) …
+      file_handlers: [
+        {
+          action: '/?launch=files',
+          accept: {
+            'image/*': ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.avif', '.svg'],
+            'application/pdf': ['.pdf'],
+            'text/csv': ['.csv', '.tsv'],
+            'application/json': ['.json'],
+            'application/zip': ['.zip'],
+            'text/plain': ['.txt', '.md'],
+          },
+        },
+      ],
+      // … and the share sheet (Android): shared files open in the app, never uploaded.
+      share_target: {
+        action: '/share-target',
+        method: 'POST',
+        enctype: 'multipart/form-data',
+        params: { files: [{ name: 'files', accept: ['image/*', 'application/pdf', 'text/csv', '.csv', 'application/json', '.json', 'application/zip', '.zip', 'text/plain'] }] },
+      },
+      launch_handler: { client_mode: ['focus-existing', 'auto'] },
     },
     null,
     2,
   ),
 );
 
+/* ---------- Offline: service worker + per-tool file lists ---------- */
+
+const offline = buildOffline(dist, process.env.VITE_BASE ?? '/', readFileSync(join(process.cwd(), 'src/tools/loaders.ts'), 'utf8'), readFileSync(join(process.cwd(), 'scripts/sw-template.js'), 'utf8'));
+
 const counts = Object.fromEntries(groups.map((g) => [g, pages.filter((p) => p.sitemap === g).length]));
-console.log(`postbuild: ${pages.length} pages (${pages.filter((p) => p.index).length} indexable), sitemaps ${JSON.stringify(counts)}, robots.txt, llms.txt, llms-full.txt, feed.xml, site.webmanifest, 404.html`);
+console.log(`postbuild: ${pages.length} pages (${pages.filter((p) => p.index).length} indexable), sitemaps ${JSON.stringify(counts)}, robots.txt, llms.txt, llms-full.txt, feed.xml, site.webmanifest, 404.html, sw.js (v${offline.version}, shell ${offline.shell.length} files, ${Object.keys(offline.tools).length} tools, ${(offline.totalBytes / 1048576).toFixed(1)} MB total)`);

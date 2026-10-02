@@ -11,6 +11,8 @@ import { Button, Card, Segmented, Select, Toggle, Kbd } from '@/components/ui/pr
 import { Dialog } from '@/components/ui/Dialog';
 import { toast } from '@/components/ui/Toast';
 import { Breadcrumb } from '@/components/tools/common';
+import { OfflineSettings } from '@/components/pwa/Offline';
+import { removeOfflineTools } from '@/pwa/pwa';
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
@@ -92,6 +94,10 @@ export default function SettingsPage() {
               { value: 'off', label: 'Allow animation' },
             ]}
           />
+        </Section>
+
+        <Section id="offline" title="App & offline">
+          <OfflineSettings />
         </Section>
 
         <Section id="processing" title="Processing">
@@ -189,7 +195,7 @@ export default function SettingsPage() {
         open={confirmReset}
         onClose={() => setConfirmReset(false)}
         title="Clear all local data?"
-        description="Settings, favorites, history, reminders, notes, tasks and saved QR styles stored in this browser will be deleted. This cannot be undone — back up notes and tasks first."
+        description="Settings, favorites, history, reminders, notes, tasks, saved QR styles and tools saved for offline use will be deleted from this browser. This cannot be undone — back up notes and tasks first."
         footer={
           <>
             <Button onClick={() => setConfirmReset(false)}>{t('action.cancel')}</Button>
@@ -197,6 +203,7 @@ export default function SettingsPage() {
               variant="danger"
               onClick={async () => {
                 await resetAll();
+                await removeOfflineTools();
                 setConfirmReset(false);
                 toast.success('All local data cleared');
               }}

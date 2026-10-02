@@ -63,7 +63,7 @@ export function toolFaqs(t: ToolDefinition): Faq[] {
   if (t.batch) faqs.push({ q: 'Can I process several files at once?', a: 'Yes. Add as many files as you like; results can be downloaded one by one or together as a ZIP.' });
   faqs.push(
     t.offline === 'yes'
-      ? { q: 'Does it work offline?', a: 'Once the page has loaded, processing needs no internet connection.' }
+      ? { q: 'Does it work offline?', a: `Yes. ${APP.name} can be installed as an app, and every tool you open is saved on your device so it opens and works without an internet connection. You can also save all tools for offline use in Settings.` }
       : { q: 'Does it need an internet connection?', a: 'Yes, this tool needs an internet connection.' },
   );
   faqs.push({

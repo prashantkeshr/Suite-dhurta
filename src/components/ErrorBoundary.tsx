@@ -28,8 +28,8 @@ export class ErrorBoundary extends Component<{ children: ReactNode; resetKey?: s
             isChunk
               ? {
                   title: t('tool.loadFailed'),
-                  reasons: ['You may be offline and this tool has not been cached yet', 'The app was updated since this page was opened'],
-                  suggestions: ['Reload the page', 'Check your connection'],
+                  reasons: ['You are offline and this tool is not saved on this device yet', 'The app was updated since this page was opened'],
+                  suggestions: ['Reload the page', 'Connect to the internet once — tools you open are then saved for offline use', 'To prepare for going offline, save all tools in Settings → App & offline'],
                   technical: String((this.state.error as Error)?.message),
                 }
               : undefined

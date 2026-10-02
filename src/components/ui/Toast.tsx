@@ -4,16 +4,22 @@ import { clsx } from 'clsx';
 
 export type ToastType = 'success' | 'info' | 'warning' | 'error';
 
+export interface ToastAction {
+  label: string;
+  onClick: () => void;
+}
+
 interface ToastItem {
   id: number;
   type: ToastType;
   message: string;
   detail?: string;
+  action?: ToastAction;
 }
 
 interface ToastState {
   toasts: ToastItem[];
-  push: (type: ToastType, message: string, detail?: string) => void;
+  push: (type: ToastType, message: string, detail?: string, action?: ToastAction, sticky?: boolean) => void;
   dismiss: (id: number) => void;
 }
 
@@ -21,10 +27,10 @@ let nextId = 1;
 
 const useToasts = create<ToastState>((set, get) => ({
   toasts: [],
-  push(type, message, detail) {
+  push(type, message, detail, action, sticky) {
     const id = nextId++;
-    set({ toasts: [...get().toasts.slice(-3), { id, type, message, detail }] });
-    setTimeout(() => get().dismiss(id), type === 'error' ? 8000 : 4500);
+    set({ toasts: [...get().toasts.slice(-3), { id, type, message, detail, action }] });
+    if (!sticky) setTimeout(() => get().dismiss(id), type === 'error' ? 8000 : action ? 10000 : 4500);
   },
   dismiss(id) {
     set({ toasts: get().toasts.filter((t) => t.id !== id) });
@@ -34,7 +40,8 @@ const useToasts = create<ToastState>((set, get) => ({
 /** Show a notification from anywhere (components or plain functions). */
 export const toast = {
   success: (m: string, d?: string) => useToasts.getState().push('success', m, d),
-  info: (m: string, d?: string) => useToasts.getState().push('info', m, d),
+  /** `action` adds a button; `sticky` keeps the toast until it is dismissed or used. */
+  info: (m: string, d?: string, action?: ToastAction, sticky?: boolean) => useToasts.getState().push('info', m, d, action, sticky),
   warning: (m: string, d?: string) => useToasts.getState().push('warning', m, d),
   error: (m: string, d?: string) => useToasts.getState().push('error', m, d),
 };
@@ -63,6 +70,17 @@ export function Toaster() {
             <div className="min-w-0 flex-1 text-sm">
               <p className="font-medium text-fg">{item.message}</p>
               {item.detail && <p className="mt-0.5 text-muted">{item.detail}</p>}
+              {item.action && (
+                <button
+                  onClick={() => {
+                    item.action!.onClick();
+                    dismiss(item.id);
+                  }}
+                  className="mt-2 rounded-md bg-accent px-3 py-1.5 text-[13px] font-medium text-accent-fg hover:bg-accent/90"
+                >
+                  {item.action.label}
+                </button>
+              )}
             </div>
             <button onClick={() => dismiss(item.id)} className="shrink-0 rounded p-1 text-muted hover:text-fg" aria-label="Dismiss notification">
               <X size={14} />

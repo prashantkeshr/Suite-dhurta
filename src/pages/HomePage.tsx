@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { clsx } from 'clsx';
 import { Repeat, Minimize2, PenLine, PlusSquare, BarChart3, ShieldCheck, ArrowRight } from 'lucide-react';
@@ -12,6 +12,7 @@ import { Icon } from '@/components/ui/Icon';
 import { FileDropzone } from '@/components/files/FileDropzone';
 import { FileActions } from '@/components/files/FileActions';
 import { ToolGrid } from '@/components/tools/ToolCard';
+import { useHandoff } from '@/filesystem/handoff';
 
 const INTENTS: { id: Intent; icon: typeof Repeat }[] = [
   { id: 'convert', icon: Repeat },
@@ -24,6 +25,11 @@ const INTENTS: { id: Intent; icon: typeof Repeat }[] = [
 export default function HomePage() {
   useDocumentMeta('', 'Image, PDF, text, data and developer tools that run entirely in your browser. No upload, no account, no server processing.', '/');
   const [files, setFiles] = useState<File[] | null>(null);
+  // Files opened with the installed app ("Open with") or shared to it from another app.
+  const incoming = useHandoff((s) => s.incoming);
+  useEffect(() => {
+    if (incoming) setFiles(useHandoff.getState().takeIncoming());
+  }, [incoming]);
   const [intent, setIntent] = useState<Intent | null>(null);
   const recent = useStore((s) => s.recent);
   const favorites = useStore((s) => s.favorites);
