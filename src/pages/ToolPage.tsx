@@ -1,10 +1,12 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Star, AlertTriangle, Loader2 } from 'lucide-react';
 import { ToolOfflineStatus } from '@/components/pwa/Offline';
 import { clsx } from 'clsx';
 import { getTool, getCategory, relatedTools, formatLabel, isUsable } from '@/tools/registry';
 import { TOOL_LOADERS } from '@/tools/loaders';
+import { lazyTool } from '@/tools/lazyTool';
+import { tasksForTool } from '@/seo/tasks';
 import { missingCapabilities, capabilityLabel } from '@/capabilities/detect';
 import { useHandoff } from '@/filesystem/handoff';
 import { useStore } from '@/storage/store';
@@ -19,11 +21,7 @@ import { ToolGrid } from '@/components/tools/ToolCard';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { toolTitle, toolDescription, toolFaqs, toolSteps } from '@/seo/seo';
 
-const lazyCache = new Map<string, ReturnType<typeof lazy>>();
-function lazyTool(id: string) {
-  if (!lazyCache.has(id)) lazyCache.set(id, lazy(TOOL_LOADERS[id]));
-  return lazyCache.get(id)!;
-}
+
 
 function Loading() {
   return (
@@ -178,6 +176,23 @@ function ToolPage({ id }: { id: string }) {
               </details>
             ))}
           </div>
+        </section>
+      )}
+
+      {tasksForTool(tool.id).length > 0 && (
+        <section className="mt-8" aria-labelledby="uses-title">
+          <h2 id="uses-title" className="section-title">
+            Popular uses
+          </h2>
+          <ul className="flex flex-wrap gap-2">
+            {tasksForTool(tool.id).map((task) => (
+              <li key={task.slug}>
+                <Link to={`/${task.slug}`} className="inline-flex min-h-[36px] items-center rounded-full border border-line bg-surface px-3 text-sm text-fg hover:border-accent/50 hover:text-accent">
+                  {task.h1}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 

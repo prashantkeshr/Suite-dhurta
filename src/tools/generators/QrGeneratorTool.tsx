@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { CheckCircle2, AlertTriangle, Loader2, Download, ImagePlus, X, Save, RotateCcw, Copy } from 'lucide-react';
 import { clsx } from 'clsx';
-import type { ToolDefinition } from '@/types/tool';
+import type { ToolDefinition, ToolPreset } from '@/types/tool';
 import { Button, Card, Select, TextInput, Toggle } from '@/components/ui/primitives';
 import { useSaver } from '@/components/tools/common';
 import { toast } from '@/components/ui/Toast';
@@ -54,10 +54,10 @@ async function readLogo(file: File): Promise<string> {
 
 type ScanState = 'idle' | 'checking' | 'ok' | 'fail';
 
-export default function QrGeneratorTool(_: { tool: ToolDefinition }) {
+export default function QrGeneratorTool({ preset }: { tool: ToolDefinition; preset?: ToolPreset }) {
   const save = useSaver();
   const addHistory = useStore((s) => s.addHistory);
-  const [kind, setKind] = useState<QrKind>('url');
+  const [kind, setKind] = useState<QrKind>(() => (KINDS.some((k) => k.value === preset?.kind) ? (preset!.kind as QrKind) : 'url'));
   const [url, setUrl] = useState('https://suite.dhurta.org');
   const [text, setText] = useState('');
   const [wifi, setWifi] = useState<WifiInput>({ ssid: '', password: '', security: 'WPA', hidden: false });

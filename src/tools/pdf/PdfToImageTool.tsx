@@ -1,7 +1,7 @@
 import { ContinueButton } from '@/components/tools/common';
 import { useState } from 'react';
 import { Download, Images } from 'lucide-react';
-import type { ToolDefinition } from '@/types/tool';
+import type { ToolDefinition, ToolPreset } from '@/types/tool';
 import { useStore } from '@/storage/store';
 import { saveMany, type OutputFile } from '@/conversion/download';
 import { outputName } from '@/utils/filename';
@@ -17,9 +17,9 @@ import { PdfThumbnail } from './PdfThumbnail';
 
 const MAX_PIXELS = 36_000_000; // per page, to stay within canvas limits on most devices
 
-export default function PdfToImageTool({ tool, initialFiles }: { tool: ToolDefinition; initialFiles?: File[] }) {
+export default function PdfToImageTool({ tool, initialFiles, preset }: { tool: ToolDefinition; initialFiles?: File[]; preset?: ToolPreset }) {
   const src = usePdfSource(initialFiles);
-  const [format, setFormat] = useState<'image/png' | 'image/jpeg'>('image/png');
+  const [format, setFormat] = useState<'image/png' | 'image/jpeg'>(preset?.format === 'image/jpeg' ? 'image/jpeg' : 'image/png');
   const [dpi, setDpi] = useState<'72' | '150' | '300'>('150');
   const [range, setRange] = useState('');
   const job = useJob<OutputFile[]>();

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Download, Play, RotateCcw, RotateCw, FlipHorizontal2, FlipVertical2, X, Eye, AlertTriangle } from 'lucide-react';
 import { clsx } from 'clsx';
-import type { ToolDefinition } from '@/types/tool';
+import type { ToolDefinition, ToolPreset } from '@/types/tool';
 import { acceptAttribute, formatLabel } from '@/tools/registry';
 import { detectFile } from '@/filesystem/detect';
 import { useQueue } from '@/hooks/useQueue';
@@ -19,7 +19,8 @@ import { toast } from '@/components/ui/Toast';
 import { FileDropzone } from '@/components/files/FileDropzone';
 import { QueueList } from '@/components/files/QueueList';
 import { useSaver, ContinueButton } from '@/components/tools/common';
-import { processImage } from './engine';
+import { processImage, readImageSize } from './engine';
+import { fitToTarget } from './targetSize';
 import { resolveOutputMime, type ImageOps, type ImageResult, type OutputMime, type ResizeSpec, type Rotation } from './ops';
 import { useInitialFiles } from '@/hooks/useInitialFiles';
 
@@ -55,7 +56,11 @@ interface Input {
 interface Output extends ImageResult {
   name: string;
   originalSize: number;
+  /** Target size was requested but could not be reached. */
+  targetMissed?: boolean;
 }
+
+const TARGET_CHIPS = [20, 50, 100, 200, 500];
 
 function Thumb({ blob, className }: { blob: Blob; className?: string }) {
   const url = useObjectUrl(blob);
@@ -66,8 +71,9 @@ function Thumb({ blob, className }: { blob: Blob; className?: string }) {
   );
 }
 
-export default function ImageBatchTool({ tool, initialFiles }: { tool: ToolDefinition; initialFiles?: File[] }) {
+export default function ImageBatchTool({ tool, initialFiles, preset: opening }: { tool: ToolDefinition; initialFiles?: File[]; preset?: ToolPreset }) {
   const preset = PRESETS[tool.id] ?? PRESETS['image-converter'];
+  const p = opening ?? {};
   const settings = useStore((s) => s.settings);
   const addHistory = useStore((s) => s.addHistory);
   const save = useSaver();
@@ -75,17 +81,19 @@ export default function ImageBatchTool({ tool, initialFiles }: { tool: ToolDefin
   const [inputs, setInputs] = useState<Input[]>([]);
   const [format, setFormat] = useState<OutputMime | 'original'>(() => {
     if (preset.fixedMime) return preset.fixedMime;
+    if (typeof p.format === 'string') return p.format as OutputMime;
     if (preset.mode === 'compress') return settings.defaultImageFormat === 'image/png' ? 'image/webp' : settings.defaultImageFormat;
     if (preset.mode === 'convert') return settings.defaultImageFormat;
     return 'original';
   });
   const [quality, setQuality] = useState(settings.defaultQuality);
-  const [resizeMode, setResizeMode] = useState<'percent' | 'dimensions'>('percent');
-  const [percent, setPercent] = useState(50);
-  const [width, setWidth] = useState('');
-  const [height, setHeight] = useState('');
-  const [keepAspect, setKeepAspect] = useState(true);
-  const [maxSide, setMaxSide] = useState('');
+  const [resizeMode, setResizeMode] = useState<'percent' | 'dimensions'>(p.width || p.height ? 'dimensions' : 'percent');
+  const [percent, setPercent] = useState(Number(p.percent) || 50);
+  const [width, setWidth] = useState(p.width ? String(p.width) : '');
+  const [height, setHeight] = useState(p.height ? String(p.height) : '');
+  const [keepAspect, setKeepAspect] = useState(p.keepAspect !== false);
+  const [maxSide, setMaxSide] = useState(p.maxSide ? String(p.maxSide) : '');
+  const [targetKb, setTargetKb] = useState(p.targetKb ? String(p.targetKb) : '');
   const [rotate, setRotate] = useState<Rotation>(90);
   const [flipH, setFlipH] = useState(true);
   const [flipV, setFlipV] = useState(false);
@@ -135,11 +143,28 @@ export default function ImageBatchTool({ tool, initialFiles }: { tool: ToolDefin
   const task = useCallback(
     async (input: Input, ctx: { signal: AbortSignal; progress: (v: number | null, s?: string) => void }): Promise<Output> => {
       const ops = buildOps(input.mime);
-      const result = await processImage(input.file, ops, { inputMime: input.mime, useWorker: settings.useWorkers, signal: ctx.signal, step: (s) => ctx.progress(null, s) });
+      const opts = { inputMime: input.mime, useWorker: settings.useWorkers, signal: ctx.signal, step: (s: string) => ctx.progress(null, s) };
       const suffix = settings.filenameSuffix ? preset.suffix : '';
+      const target = preset.mode === 'compress' ? Number(targetKb) * 1000 : 0;
+      if (target > 0) {
+        // "20 KB" is taken as 20,000 bytes, which also satisfies sites that mean 20 × 1024.
+        const dims = await readImageSize(input.file, input.mime);
+        const base = Number(maxSide) > 0 ? Math.min(1, Number(maxSide) / Math.max(dims.width, dims.height)) : 1;
+        const out = await fitToTarget(
+          async (q, s) => {
+            ctx.progress(null, `Trying quality ${Math.round(q * 100)}%${base * s < 1 ? `, ${Math.round(base * s * 100)}% size` : ''}…`);
+            const r = await processImage(input.file, { ...ops, quality: q, resize: { mode: 'percent', percent: base * s * 100 } }, opts);
+            return { result: r, bytes: r.blob.size };
+          },
+          target,
+          { lossy: ops.mime !== 'image/png' },
+        );
+        return { ...out.result, name: outputName(input.file.name, suffix, out.result.blob.type), originalSize: input.file.size, targetMissed: !out.reached };
+      }
+      const result = await processImage(input.file, ops, opts);
       return { ...result, name: outputName(input.file.name, suffix, result.blob.type), originalSize: input.file.size };
     },
-    [buildOps, settings.useWorkers, settings.filenameSuffix, preset.suffix],
+    [buildOps, settings.useWorkers, settings.filenameSuffix, preset.suffix, preset.mode, targetKb, maxSide],
   );
 
   const { queue, jobs } = useQueue<Input, Output>(task, 2);
@@ -151,6 +176,8 @@ export default function ImageBatchTool({ tool, initialFiles }: { tool: ToolDefin
     if (!busy && complete.length > 0 && jobs.length > 0) {
       const outFormat = MIME_LABEL[complete[0].result!.blob.type] ?? 'image';
       addHistory(tool.id, `${complete.length} image${complete.length > 1 ? 's' : ''} → ${outFormat}`);
+      const missed = complete.filter((j) => j.result!.targetMissed);
+      if (missed.length) toast.warning(`${missed.length} image${missed.length > 1 ? 's' : ''} could not be made smaller than ${targetKb} KB`, 'The smallest usable version is shown. Try a smaller “Max width/height”, or JPEG instead of PNG.');
     }
   }, [busy]);
 
@@ -324,6 +351,26 @@ export default function ImageBatchTool({ tool, initialFiles }: { tool: ToolDefin
 
               {preset.mode === 'compress' && (
                 <div>
+                  <label htmlFor="target" className="label">
+                    Target file size (optional)
+                  </label>
+                  <div className="relative">
+                    <input id="target" className="input pr-12 tabular-nums" inputMode="numeric" placeholder="Any size" value={targetKb} onChange={(e) => setTargetKb(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))} />
+                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted">KB</span>
+                  </div>
+                  <div className="mt-1.5 flex flex-wrap gap-1">
+                    {TARGET_CHIPS.map((kb) => (
+                      <Button key={kb} size="sm" variant={targetKb === String(kb) ? 'primary' : 'secondary'} aria-pressed={targetKb === String(kb)} onClick={() => setTargetKb(targetKb === String(kb) ? '' : String(kb))}>
+                        {kb} KB
+                      </Button>
+                    ))}
+                  </div>
+                  <p className="mt-1 text-xs text-muted">For exam and government forms. Quality (and, only if needed, dimensions) is reduced just enough to get under the limit.</p>
+                </div>
+              )}
+
+              {preset.mode === 'compress' && (
+                <div>
                   <label htmlFor="max" className="label">
                     Max width/height (optional)
                   </label>
@@ -334,7 +381,7 @@ export default function ImageBatchTool({ tool, initialFiles }: { tool: ToolDefin
 
               {preset.mode !== 'fixed' && <Select label="Output format" value={format} onChange={(e) => setFormat(e.target.value as OutputMime | 'original')} options={formatOptions} />}
 
-              {showOptions && lossy && (
+              {showOptions && lossy && !(preset.mode === 'compress' && Number(targetKb) > 0) && (
                 <div>
                   <label htmlFor="quality" className="label">
                     Quality: {Math.round(quality * 100)}%

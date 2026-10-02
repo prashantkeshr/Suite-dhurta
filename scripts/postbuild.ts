@@ -19,6 +19,7 @@ import { APP } from '../src/app/config';
 import { TOOLS, CATEGORIES, isUsable, getCategory, relatedTools, formatLabel, sortTools } from '../src/tools/registry';
 import type { ToolDefinition } from '../src/types/tool';
 import { buildOffline } from './offline';
+import { TASKS, getTask, tasksForTool, type Task } from '../src/seo/tasks';
 import { SITE, OG_IMAGE, toolTitle, toolDescription, toolFaqs, toolSteps, toolJsonLd, organizationLd, websiteLd, breadcrumbLd, collectionLd, faqLd, type Faq } from '../src/seo/seo';
 
 const dist = join(process.cwd(), 'dist');
@@ -48,7 +49,11 @@ interface Page {
   body: string;
   jsonLd?: unknown[];
   index: boolean;
-  sitemap?: 'pages' | 'categories' | 'tools';
+  sitemap?: 'pages' | 'categories' | 'tools' | 'tasks';
+  /** Content language (default en). */
+  lang?: 'en' | 'hi';
+  /** Language versions of this page, for hreflang. */
+  alternates?: { lang: string; path: string }[];
   priority?: string;
   changefreq?: string;
 }
@@ -63,7 +68,7 @@ function head(p: Page): string {
     `<meta name="robots" content="${p.index ? 'index, follow, max-image-preview:large, max-snippet:-1' : 'noindex, follow'}" />`,
     `<meta property="og:type" content="website" />`,
     `<meta property="og:site_name" content="${esc(APP.name)}" />`,
-    `<meta property="og:locale" content="en_IN" />`,
+    `<meta property="og:locale" content="${p.lang === 'hi' ? 'hi_IN' : 'en_IN'}" />`,
     `<meta property="og:title" content="${esc(p.title)}" />`,
     `<meta property="og:description" content="${esc(p.description)}" />`,
     `<meta property="og:url" content="${esc(url)}" />`,
@@ -76,6 +81,7 @@ function head(p: Page): string {
     `<meta name="twitter:description" content="${esc(p.description)}" />`,
     `<meta name="twitter:image" content="${OG_IMAGE}" />`,
     `<link rel="alternate" type="application/atom+xml" title="${esc(APP.name)} — tools" href="${SITE}/feed.xml" />`,
+    ...(p.alternates ?? []).map((a) => `<link rel="alternate" hreflang="${a.lang}" href="${SITE}${a.path}" />`),
     v.google && `<meta name="google-site-verification" content="${esc(v.google)}" />`,
     v.bing && `<meta name="msvalidate.01" content="${esc(v.bing)}" />`,
     v.yandex && `<meta name="yandex-verification" content="${esc(v.yandex)}" />`,
@@ -85,7 +91,8 @@ function head(p: Page): string {
 }
 
 function render(p: Page): string {
-  return template.replace(/<!-- seo:start[\s\S]*?<!-- seo:end -->/, head(p)).replace('<div id="root"></div>', `<div id="root">${p.body}</div>`);
+  const html = template.replace(/<!-- seo:start[\s\S]*?<!-- seo:end -->/, head(p)).replace('<div id="root"></div>', `<div id="root">${p.body}</div>`);
+  return p.lang && p.lang !== 'en' ? html.replace('<html lang="en"', `<html lang="${p.lang}"`) : html;
 }
 
 /* ---------- Static content blocks ---------- */
@@ -120,6 +127,8 @@ pages.push({
       const list = usableTools.filter((t) => t.category === c.id);
       return list.length ? `<section><h2><a href="/category/${c.id}">${esc(c.name)}</a></h2><p>${esc(c.description)}</p><ul>${list.map(toolItem).join('')}</ul></section>` : '';
     }).join('') +
+    `<section><h2>Popular tasks</h2><ul>${TASKS.filter((t) => t.lang === 'en').map((t) => `<li><a href="/${t.slug}">${esc(t.h1)}</a></li>`).join('')}</ul></section>` +
+    `<section lang="hi"><h2>हिंदी में</h2><ul>${TASKS.filter((t) => t.lang === 'hi').map((t) => `<li><a href="/${t.slug}" hreflang="hi">${esc(t.h1)}</a></li>`).join('')}</ul></section>` +
     faqHtml(SITE_FAQS),
   jsonLd: [organizationLd(), websiteLd(), faqLd(SITE_FAQS)],
   index: true,
@@ -178,6 +187,7 @@ for (const t of TOOLS) {
       `<h1>${esc(t.name)}</h1><p>${esc(t.description)}</p><ul>${facts}</ul>` +
       `<h2>How to use ${esc(t.name)}</h2><ol>${toolSteps(t).map((s) => `<li>${esc(s)}</li>`).join('')}</ol>` +
       faqHtml(toolFaqs(t)) +
+      (tasksForTool(t.id).length ? `<h2>Popular uses</h2><ul>${tasksForTool(t.id).map((k) => `<li><a href="/${k.slug}">${esc(k.h1)}</a></li>`).join('')}</ul>` : '') +
       (related.length ? `<h2>Related tools</h2><ul>${related.map(toolItem).join('')}</ul>` : '')
     : `<h1>${esc(t.name)}</h1><p>Coming soon. ${esc(t.description)}</p>${t.reason ? `<p>${esc(t.reason)}</p>` : ''}${cat ? `<p><a href="/category/${cat.id}">Browse ${esc(cat.name)} tools</a></p>` : ''}`;
   pages.push({
@@ -190,6 +200,61 @@ for (const t of TOOLS) {
     index: usable,
     sitemap: usable ? 'tools' : undefined,
     priority: t.popular ? '0.9' : '0.7',
+    changefreq: 'monthly',
+  });
+}
+
+// Task landing pages ("/compress-image-to-20kb", "/hi/jpg-se-pdf")
+const taskAlternates = (k: Task) => {
+  const twin = k.twin ? getTask(k.twin) : undefined;
+  if (!twin) return undefined;
+  const en = k.lang === 'en' ? k : twin;
+  return [
+    { lang: k.lang, path: `/${k.slug}` },
+    { lang: twin.lang, path: `/${twin.slug}` },
+    { lang: 'x-default', path: `/${en.slug}` },
+  ];
+};
+for (const k of TASKS) {
+  const tool = TOOLS.find((x) => x.id === k.toolId);
+  if (!tool || !isUsable(tool)) throw new Error(`task ${k.slug}: tool ${k.toolId} is not available`);
+  const hi = k.lang === 'hi';
+  const related = (k.related ?? []).map(getTask).filter((x): x is Task => !!x);
+  const twin = k.twin ? getTask(k.twin) : undefined;
+  const crumbs = [
+    { name: hi ? 'होम' : 'Home', path: '/' },
+    { name: tool.name, path: `/tools/${tool.id}` },
+    { name: k.h1, path: `/${k.slug}` },
+  ];
+  pages.push({
+    path: `/${k.slug}`,
+    lang: k.lang,
+    alternates: taskAlternates(k),
+    title: `${k.title} | ${APP.name}`,
+    description: k.description,
+    body:
+      `<nav aria-label="Breadcrumb"><a href="/">${hi ? 'होम' : 'Home'}</a> › <a href="/tools/${tool.id}">${esc(tool.name)}</a> › ${esc(k.h1)}</nav>` +
+      `<h1>${esc(k.h1)}</h1><p>${esc(k.intro)}</p>` +
+      `<h2>${hi ? 'कैसे करें' : 'How to do it'}</h2><ol>${k.steps.map((x) => `<li>${esc(x)}</li>`).join('')}</ol>` +
+      faqHtml(k.faqs).replace('Frequently asked questions', hi ? 'अक्सर पूछे जाने वाले सवाल' : 'Frequently asked questions') +
+      (related.length ? `<h2>${hi ? 'ये भी देखें' : 'Related'}</h2><ul>${related.map((r) => `<li><a href="/${r.slug}">${esc(r.h1)}</a></li>`).join('')}</ul>` : '') +
+      `<p><a href="/tools/${tool.id}">${esc(tool.name)}</a>${twin ? ` · <a href="/${twin.slug}" hreflang="${twin.lang}">${twin.lang === 'hi' ? 'हिंदी में पढ़ें' : 'Read in English'}</a>` : ''}</p>`,
+    jsonLd: [
+      breadcrumbLd(crumbs),
+      {
+        '@context': 'https://schema.org',
+        '@type': 'HowTo',
+        name: k.h1,
+        inLanguage: k.lang,
+        tool: { '@type': 'HowToTool', name: `${APP.name} ${tool.name}` },
+        estimatedCost: { '@type': 'MonetaryAmount', currency: 'INR', value: '0' },
+        step: k.steps.map((x, i) => ({ '@type': 'HowToStep', position: i + 1, text: x })),
+      },
+      faqLd(k.faqs),
+    ],
+    index: true,
+    sitemap: 'tasks',
+    priority: '0.9',
     changefreq: 'monthly',
   });
 }
@@ -222,18 +287,18 @@ writeFileSync(join(dist, '_redirects'), '/*  /index.html  200\n');
 
 /* ---------- Sitemaps ---------- */
 
-const groups = ['pages', 'categories', 'tools'] as const;
+const groups = ['pages', 'categories', 'tools', 'tasks'] as const;
 for (const g of groups) {
   const urls = pages.filter((p) => p.sitemap === g);
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${urls
   .map(
     (p) => `  <url>
     <loc>${SITE}${p.path}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>${p.changefreq ?? 'monthly'}</changefreq>
-    <priority>${p.priority ?? '0.5'}</priority>${p.path === '/' ? `\n    <image:image><image:loc>${OG_IMAGE}</image:loc></image:image>` : ''}
+    <priority>${p.priority ?? '0.5'}</priority>${p.path === '/' ? `\n    <image:image><image:loc>${OG_IMAGE}</image:loc></image:image>` : ''}${(p.alternates ?? []).map((a) => `\n    <xhtml:link rel="alternate" hreflang="${a.lang}" href="${SITE}${a.path}" />`).join('')}
   </url>`,
   )
   .join('\n')}
@@ -324,6 +389,8 @@ const llms =
     const list = usableTools.filter((t) => t.category === c.id);
     return list.length ? `\n## ${c.name}\n\n${list.map((t) => `- [${t.name}](${SITE}/tools/${t.id}): ${t.description}`).join('\n')}\n` : '';
   }).join('') +
+  `\n## Common tasks\n\n${TASKS.filter((k) => k.lang === 'en').map((k) => `- [${k.h1}](${SITE}/${k.slug}): ${k.description}`).join('\n')}\n` +
+  `\n## Hindi pages\n\n${TASKS.filter((k) => k.lang === 'hi').map((k) => `- [${k.h1}](${SITE}/${k.slug})`).join('\n')}\n` +
   `\n## Optional\n\n- [All tools](${SITE}/tools): full list by category\n- [Privacy](${SITE}/privacy): how files and data are handled\n- [Full details for every tool](${SITE}/llms-full.txt)\n- [${APP.org}](${APP.orgUrl}): the organisation behind ${APP.name}\n${plannedTools.length ? `- Coming soon: ${plannedTools.map((t) => t.name).join(', ')}\n` : ''}`;
 writeFileSync(join(dist, 'llms.txt'), llms);
 

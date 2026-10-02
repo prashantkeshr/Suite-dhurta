@@ -17,6 +17,7 @@ const HistoryPage = lazy(() => import('@/pages/ActivityPages').then((m) => ({ de
 const WorkspacePage = lazy(() => import('@/pages/ActivityPages').then((m) => ({ default: m.WorkspacePage })));
 const PrivacyPage = lazy(() => import('@/pages/InfoPages').then((m) => ({ default: m.PrivacyPage })));
 const AboutPage = lazy(() => import('@/pages/InfoPages').then((m) => ({ default: m.AboutPage })));
+const TaskRoute = lazy(() => import('@/pages/TaskPage'));
 const NotFoundPage = lazy(() => import('@/pages/InfoPages').then((m) => ({ default: m.NotFoundPage })));
 
 const page = (el: JSX.Element) => (
@@ -40,6 +41,9 @@ const router = createBrowserRouter(
         { path: '/diagnostics', element: page(<DiagnosticsPage />) },
         { path: '/privacy', element: page(<PrivacyPage />) },
         { path: '/about', element: page(<AboutPage />) },
+        // Landing pages for common searches ("/compress-image-to-20kb", "/hi/jpg-se-pdf").
+        { path: '/hi/:slug', element: page(<TaskRoute hindi />) },
+        { path: '/:slug', element: page(<TaskRoute />) },
         { path: '*', element: page(<NotFoundPage />) },
       ],
     },

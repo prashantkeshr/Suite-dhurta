@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
 import { clsx } from 'clsx';
-import type { ToolDefinition } from '@/types/tool';
+import type { ToolDefinition, ToolPreset } from '@/types/tool';
 import { Badge, Button, Card, Segmented, Select, TextInput, Toggle } from '@/components/ui/primitives';
 import { CopyButton, DownloadTextButton, Formula } from '@/components/tools/common';
 import { NumField, Result, inr, num, plain } from './CalcTools';
@@ -19,12 +19,12 @@ const COMPOUNDING: { value: string; label: string }[] = [
   { value: '0', label: 'Continuous' },
 ];
 
-export function InterestTool(_: { tool: ToolDefinition }) {
-  const [p, setP] = useState('100000');
-  const [rate, setRate] = useState('7');
-  const [years, setYears] = useState('5');
-  const [freq, setFreq] = useState('4');
-  const [monthly, setMonthly] = useState('0');
+export function InterestTool({ preset }: { tool: ToolDefinition; preset?: ToolPreset }) {
+  const [p, setP] = useState(String(preset?.amount ?? '100000'));
+  const [rate, setRate] = useState(String(preset?.rate ?? '7'));
+  const [years, setYears] = useState(String(preset?.years ?? '5'));
+  const [freq, setFreq] = useState(String(preset?.compounding ?? '4'));
+  const [monthly, setMonthly] = useState(String(preset?.monthly ?? '0'));
   const res = useMemo(() => {
     try {
       return interest(num(p) || 0, num(rate), num(years), Number(freq) as Compounding, num(monthly) || 0);
@@ -258,9 +258,9 @@ function DateField({ label, value, onChange }: { label: string; value: string; o
   return <TextInput label={label} type="date" value={value} onChange={(e) => onChange(e.target.value)} />;
 }
 
-export function DateTool(_: { tool: ToolDefinition }) {
+export function DateTool({ preset }: { tool: ToolDefinition; preset?: ToolPreset }) {
   const today = formatYmd(todayYmd());
-  const [mode, setMode] = useState<'age' | 'diff' | 'add'>('age');
+  const [mode, setMode] = useState<'age' | 'diff' | 'add'>(preset?.mode === 'diff' || preset?.mode === 'add' ? preset.mode : 'age');
   const [birth, setBirth] = useState('1995-08-15');
   const [on, setOn] = useState(today);
   const [from, setFrom] = useState(today);

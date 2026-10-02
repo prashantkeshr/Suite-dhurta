@@ -63,8 +63,11 @@ export interface ToolDefinition {
   externalService?: { name: string; url: string };
 }
 
+/** Settings a landing page opens a tool with, e.g. { targetKb: 20, format: 'image/jpeg' }. */
+export type ToolPreset = Record<string, string | number | boolean>;
+
 export interface ToolModule {
-  default: ComponentType<{ tool: ToolDefinition; initialFiles?: File[] }>;
+  default: ComponentType<{ tool: ToolDefinition; initialFiles?: File[]; preset?: ToolPreset }>;
 }
 
 export type CapabilityKey =

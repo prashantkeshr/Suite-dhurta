@@ -1,7 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { ArrowLeftRight } from 'lucide-react';
 import { clsx } from 'clsx';
-import type { ToolDefinition } from '@/types/tool';
+import type { ToolDefinition, ToolPreset } from '@/types/tool';
 import { Button, Card, Segmented, Select } from '@/components/ui/primitives';
 import { Formula, CopyButton, DownloadTextButton } from '@/components/tools/common';
 import { emi, gst, percentOf, whatPercent, percentChange, UNIT_CATEGORIES, convertUnit, formatValue } from './logic';
@@ -160,10 +160,10 @@ export function GstTool(_: { tool: ToolDefinition }) {
 
 /* ---------- EMI ---------- */
 
-export function EmiTool(_: { tool: ToolDefinition }) {
-  const [p, setP] = useState('2500000');
-  const [rate, setRate] = useState('8.5');
-  const [years, setYears] = useState('20');
+export function EmiTool({ preset }: { tool: ToolDefinition; preset?: ToolPreset }) {
+  const [p, setP] = useState(String(preset?.amount ?? '2500000'));
+  const [rate, setRate] = useState(String(preset?.rate ?? '8.5'));
+  const [years, setYears] = useState(String(preset?.years ?? '20'));
   const [unit, setUnit] = useState<'years' | 'months'>('years');
   const [showAll, setShowAll] = useState(false);
   const months = unit === 'years' ? num(years) * 12 : num(years);
