@@ -14,6 +14,7 @@ import { join } from 'node:path';
 
 interface Chunk {
   file: string;
+  isDynamicEntry?: boolean;
   src?: string;
   imports?: string[];
   dynamicImports?: string[];
@@ -45,7 +46,14 @@ export function toolModules(loadersSource: string): Record<string, string> {
 
 export function buildOffline(dist: string, base: string, loadersSource: string, swTemplate: string): OfflineManifest {
   const manifest: Record<string, Chunk> = JSON.parse(readFileSync(join(dist, '.vite', 'manifest.json'), 'utf8'));
-  const keyFor = (src: string) => Object.keys(manifest).find((k) => k === `${src}.tsx` || k === `${src}.ts`);
+  const keyFor = (src: string) => {
+    const exact = Object.keys(manifest).find((k) => k === `${src}.tsx` || k === `${src}.ts`);
+    if (exact) return exact;
+    // Some chunks are listed under their output name instead of their source path
+    // (seen with Monaco's worker imports); match the dynamic entry by file name.
+    const base = src.slice(src.lastIndexOf('/') + 1);
+    return Object.keys(manifest).find((k) => manifest[k].isDynamicEntry && manifest[k].file.startsWith(`assets/${base}-`) && manifest[k].file.endsWith('.js'));
+  };
 
   const assetsDir = join(dist, 'assets');
   // Chunks in the module graph are followed through the graph; a text scan only
@@ -96,14 +104,19 @@ export function buildOffline(dist: string, base: string, loadersSource: string, 
   }
 
   // App shell: entry + pages; tool modules and on-demand libraries are left out.
-  const shellChunks = closure(['index.html'], (k) => !k.startsWith('src/tools/') && !k.startsWith('node_modules/'));
+  const toolKeys = new Map<string, string>();
+  for (const [id, src] of Object.entries(toolModules(loadersSource))) {
+    const key = keyFor(src);
+    if (!key) throw new Error(`offline: no build chunk for tool "${id}" (${src})`);
+    toolKeys.set(id, key);
+  }
+  const isToolKey = new Set(toolKeys.values());
+  const shellChunks = closure(['index.html'], (k) => !k.startsWith('src/tools/') && !k.startsWith('node_modules/') && !isToolKey.has(k));
   const publicShell = ['', 'index.html', 'site.webmanifest', 'offline.json', 'favicon.ico', 'favicon-16.png', 'favicon-32.png', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-192.png', 'icon-maskable-512.png', 'brand/logo-light.png', 'brand/logo-dark.png', 'brand/badge-light.png', 'brand/badge-dark.png', 'brand/mark-light.png', 'brand/mark-dark.png'].filter((f) => f === '' || f === 'offline.json' || existsSync(join(dist, f)));
   const shell = [...publicShell, ...[...shellChunks].sort()];
 
   const tools: OfflineManifest['tools'] = {};
-  for (const [id, src] of Object.entries(toolModules(loadersSource))) {
-    const key = keyFor(src);
-    if (!key) throw new Error(`offline: no build chunk for tool "${id}" (${src})`);
+  for (const [id, key] of toolKeys) {
     // Stop at shell chunks: tools import the entry, whose lazy imports lead to every other tool.
     const files = [...closure([key], () => true, (k) => shellChunks.has(manifest[k].file))].filter((f) => !shellChunks.has(f)).sort();
     tools[id] = { files, bytes: files.reduce((a, f) => a + size(f), 0) };

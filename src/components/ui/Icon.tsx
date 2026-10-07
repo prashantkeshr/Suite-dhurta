@@ -1,5 +1,5 @@
 import {
-  Activity, AppWindow, Barcode, Binary, Blend, Braces, Calculator, CalendarDays, CaseSensitive, Code, Combine, Crop, Dices,
+  Activity, AppWindow, Barcode, Binary, Blend, Braces, Calculator, CalendarDays, Clock, CaseSensitive, Code, Combine, Crop, Dices,
   Eraser, ExternalLink, FileArchive, FileCode, FileImage, FileJson, FileMinus, FilePen, FileSearch, FileText, FileType,
   Fingerprint, FlipHorizontal2, Folder, GitCompare, Globe, Hash, Image, Info, KeyRound, KeySquare, Landmark, LayoutGrid,
   LetterText, Link, Link2, ListChecks, ListFilter, ListOrdered, Lock, Minimize2, PackageOpen, Palette, PenTool, Percent, Pilcrow,
@@ -12,7 +12,7 @@ import {
  * which keeps lucide tree-shaken.
  */
 const ICONS: Record<string, LucideIcon> = {
-  Activity, AppWindow, Barcode, Binary, Blend, Braces, Calculator, CalendarDays, CaseSensitive, Code, Combine, Crop, Dices,
+  Activity, AppWindow, Barcode, Binary, Blend, Braces, Calculator, CalendarDays, Clock, CaseSensitive, Code, Combine, Crop, Dices,
   Eraser, ExternalLink, FileArchive, FileCode, FileImage, FileJson, FileMinus, FilePen, FileSearch, FileText, FileType,
   Fingerprint, FlipHorizontal2, Folder, GitCompare, Globe, Hash, Image, Info, KeyRound, KeySquare, Landmark, LayoutGrid,
   LetterText, Link, Link2, ListChecks, ListFilter, ListOrdered, Lock, Minimize2, PackageOpen, Palette, PenTool, Percent, Pilcrow,

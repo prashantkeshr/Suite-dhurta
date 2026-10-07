@@ -53,6 +53,9 @@ export const TOOL_LOADERS: Record<string, Loader> = {
   'pdf-page-numbers': () => import('./pdf/PdfPageNumbersTool'),
   'pdf-sign': () => import('./pdf/PdfSignTool'),
 
+  // Code editor (Monaco, the editor from VS Code)
+  'code-editor': () => import('./developer/CodeEditorTool'),
+
   // Text
   'word-counter': () => import('./text/WordCounterTool'),
   'case-converter': () => import('./text/CaseConverterTool'),
@@ -105,6 +108,8 @@ export const TOOL_LOADERS: Record<string, Loader> = {
   'scientific-calculator': () => import('./calculators/ScientificTool'),
   'date-calculator': () => import('./calculators/DateTool'),
   'bmi-calculator': () => import('./calculators/BmiTool'),
+  'time-calculator': () => import('./calculators/TimeCalculatorTool'),
+  'time-zone-converter': () => import('./calculators/TimeZoneTool'),
 
   // Generators & scanning
   'qr-generator': () => import('./generators/QrGeneratorTool'),
