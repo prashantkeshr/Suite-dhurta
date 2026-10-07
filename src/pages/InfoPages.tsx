@@ -78,6 +78,22 @@ export function PrivacyPage() {
   );
 }
 
+const CREDITS: [string, string, string][] = [
+  ['React, React Router, Zustand', 'the interface', 'MIT'],
+  ['Monaco Editor (Microsoft)', 'the editor from VS Code in the Code Editor', 'MIT'],
+  ['pdf.js (Mozilla)', 'reading and rendering PDFs', 'Apache-2.0'],
+  ['pdf-lib', 'creating and editing PDFs', 'MIT'],
+  ['libheif via heic-to', 'decoding iPhone HEIC photos', 'LGPL-3.0'],
+  ['SheetJS Community Edition', 'reading spreadsheets', 'Apache-2.0'],
+  ['Prettier, sql-formatter', 'code formatting', 'MIT'],
+  ['qrcode, jsQR, JsBarcode', 'QR codes and barcodes', 'MIT / Apache-2.0 / MIT'],
+  ['fflate', 'ZIP and compression', 'MIT'],
+  ['marked, DOMPurify', 'Markdown rendering and sanitising', 'MIT / Apache-2.0 or MPL-2.0'],
+  ['diff, yaml', 'text comparison and YAML', 'BSD-3-Clause / ISC'],
+  ['EFF long word list', 'passphrases', 'CC BY 3.0 US, via @wordlist/english-eff (MIT)'],
+  ['Lucide', 'icons', 'ISC'],
+];
+
 export function AboutPage() {
   useDocumentMeta('About', `${APP.name}: a privacy-first, browser-native productivity suite.`, '/about');
   const usable = TOOLS.filter(isUsable);
@@ -103,6 +119,19 @@ export function AboutPage() {
         <p>
           Some conversions, such as PDF to Word, cannot yet be done reliably in a browser. Rather than ship something broken, those tools are marked{' '}
           <strong className="text-fg">Coming soon</strong> and have no upload form. When a browser lacks a feature a tool needs, the tool says so.
+        </p>
+        <h2>Open-source software</h2>
+        <p>{APP.name} is built on excellent open-source projects, bundled with the site and run in your browser:</p>
+        <ul>
+          {CREDITS.map(([name, use, licence]) => (
+            <li key={name}>
+              <strong className="text-fg">{name}</strong> — {use} ({licence})
+            </li>
+          ))}
+        </ul>
+        <p>
+          libheif is used unmodified under the GNU LGPL 3.0 as a separately loaded file; its source is available from the libheif project. Each library’s licence text ships with
+          the package it comes from.
         </p>
       </Prose>
       <div className="mt-6 grid gap-3 sm:grid-cols-2">

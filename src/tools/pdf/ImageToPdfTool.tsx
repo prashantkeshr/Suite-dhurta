@@ -12,7 +12,7 @@ import { ErrorState } from '@/components/ui/states';
 import { toast } from '@/components/ui/Toast';
 import { FileDropzone } from '@/components/files/FileDropzone';
 import { SortableFileList } from '@/components/files/SortableFileList';
-import { useSaver } from '@/components/tools/common';
+import { useSaver, ContinueButton } from '@/components/tools/common';
 import { imagesToPdf, type PageSizeKey } from './engine';
 import { useJob } from './useJob';
 import { useInitialFiles } from '@/hooks/useInitialFiles';
@@ -135,6 +135,7 @@ export default function ImageToPdfTool({ tool, initialFiles }: { tool: ToolDefin
                 Download ({formatBytes(job.result.size)})
               </Button>
             )}
+            {job.result && <ContinueButton size="md" files={[{ blob: job.result, name: `${name.trim() || 'images'}.pdf` }]} />}
           </Card>
         </div>
       )}

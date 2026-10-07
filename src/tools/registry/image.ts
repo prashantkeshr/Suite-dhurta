@@ -261,5 +261,27 @@ export const imageTools = [
     popular: true,
   }),
   planned({ id: 'background-remover', name: 'Background Remover', description: 'Remove image backgrounds.', category: 'image', icon: 'Eraser', inputTypes: IMAGE_IN, keywords: ['background', 'remove', 'cutout', 'transparent'], reason: PHASE.ai }),
-  planned({ id: 'heic-converter', name: 'HEIC Converter', description: 'Convert iPhone HEIC photos.', category: 'image', icon: 'Repeat', inputTypes: ['image/heic', 'image/heif'], keywords: ['heic', 'heif', 'iphone'], reason: 'Browsers do not decode HEIC natively; a reliable WebAssembly decoder is still being evaluated.' }),
+  defineTool({
+    id: 'heic-converter',
+    name: 'HEIC to JPG Converter',
+    description: 'Convert iPhone HEIC/HEIF photos to JPG, PNG or WebP — many at once — right in your browser.',
+    category: 'image',
+    icon: 'Image',
+    // Beta until verified with a range of real iPhone photos.
+    status: 'beta',
+    batch: true,
+    inputTypes: ['.heic', '.heif', 'image/heic', 'image/heif'],
+    outputTypes: ['image/jpeg', 'image/png', 'image/webp'],
+    intents: ['convert'],
+    keywords: ['heic to jpg', 'heic to jpeg', 'heic converter', 'heif', 'iphone photo', 'heic to png', 'open heic'],
+    aliases: ['heic to jpg converter', 'iphone photo converter', 'heif to jpg'],
+    actionLabel: 'Convert HEIC',
+    limitations: [
+      'Uses libheif (LGPL-3.0) compiled to WebAssembly, downloaded the first time it is needed.',
+      'Camera and location (EXIF) details are not copied into the converted photos.',
+      'Live Photo motion and burst sequences are not converted — only the main still image.',
+    ],
+    related: ['image-converter', 'image-compressor', 'image-to-pdf'],
+    popular: true,
+  }),
 ];

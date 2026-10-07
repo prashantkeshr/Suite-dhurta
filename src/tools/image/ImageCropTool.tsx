@@ -14,7 +14,7 @@ import { t } from '@/i18n';
 import { Button, Card, Select } from '@/components/ui/primitives';
 import { ErrorState } from '@/components/ui/states';
 import { FileDropzone } from '@/components/files/FileDropzone';
-import { useSaver } from '@/components/tools/common';
+import { useSaver, ContinueButton } from '@/components/tools/common';
 import { resolveOutputMime, type OutputMime } from './ops';
 import { centeredRect, dragRect, normalize, type Handle, type Rect } from './cropMath';
 
@@ -240,6 +240,7 @@ export default function ImageCropTool({ tool, initialFiles }: { tool: ToolDefini
                 <Button variant="primary" className="w-full justify-center" icon={<Download size={16} />} onClick={() => save(result.blob, result.name)}>
                   {t('action.download')}
                 </Button>
+                <ContinueButton size="md" files={[result]} />
               </div>
             )}
           </Card>

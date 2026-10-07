@@ -36,6 +36,7 @@ export const TOOL_LOADERS: Record<string, Loader> = {
   'favicon-generator': () => import('./image/FaviconTool'),
   'photopea': () => import('./image/PhotopeaTool'),
   'image-info': () => import('./image/ImageInfoTool'),
+  'heic-converter': () => import('./image/HeicTool'),
   'image-to-base64': () => import('./image/ImageBase64Tool'),
   'base64-to-image': () => import('./image/ImageBase64Tool'),
 
@@ -52,6 +53,8 @@ export const TOOL_LOADERS: Record<string, Loader> = {
   'pdf-watermark': () => import('./pdf/PdfWatermarkTool'),
   'pdf-page-numbers': () => import('./pdf/PdfPageNumbersTool'),
   'pdf-sign': () => import('./pdf/PdfSignTool'),
+  'pdf-compressor': () => import('./pdf/PdfCompressTool'),
+  'pdf-compare': () => import('./pdf/PdfCompareTool'),
 
   // Code editor (Monaco, the editor from VS Code)
   'code-editor': () => import('./developer/CodeEditorTool'),
@@ -92,12 +95,14 @@ export const TOOL_LOADERS: Record<string, Loader> = {
   'uuid-generator': () => import('./security/RandomIdTool'),
   'random-token': () => import('./security/RandomIdTool'),
   'hash-generator': () => import('./security/HashTool'),
+  'passphrase-generator': () => import('./security/PassphraseTool'),
 
   // Data
   'csv-to-json': csvJson,
   'json-to-csv': csvJson,
   'csv-viewer': () => import('./data/CsvEditorTool'),
   'spreadsheet-viewer': () => import('./data/SpreadsheetTool'),
+  'presentation-info': () => import('./data/PresentationTool'),
 
   // Calculators & converters
   'percentage-calculator': () => import('./calculators/PercentageTool'),

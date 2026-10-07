@@ -8,7 +8,7 @@ import { formatBytes } from '@/utils/format';
 import { Button, Card, Progress } from '@/components/ui/primitives';
 import { ErrorState } from '@/components/ui/states';
 import { FileDropzone } from '@/components/files/FileDropzone';
-import { InfoTable, CopyButton, useSaver } from '@/components/tools/common';
+import { InfoTable, CopyButton, useSaver, ContinueButton } from '@/components/tools/common';
 import { loadPdf, readInfo, stripMetadata, type PdfInfo } from './engine';
 import { useJob } from './useJob';
 import { useInitialFiles } from '@/hooks/useInitialFiles';
@@ -133,6 +133,7 @@ export default function PdfMetadataTool({ tool, initialFiles }: { tool: ToolDefi
                 Download clean PDF ({formatBytes(job.result.size)})
               </Button>
             )}
+            {job.result && <ContinueButton size="md" files={[{ blob: job.result, name: outputName(file.name, 'clean', 'pdf') }]} />}
             <p className="text-xs text-muted">Hidden data can also exist inside page content, annotations or attachments; this tool does not remove those.</p>
           </Card>
         </div>

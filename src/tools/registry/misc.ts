@@ -1,4 +1,4 @@
-import { defineTool, planned } from './define';
+import { defineTool } from './define';
 
 const CSV = ['text/csv', '.csv', '.tsv', 'text/tab-separated-values'];
 
@@ -61,7 +61,19 @@ export const securityTools = [
     requires: ['webCrypto'],
     related: ['file-info', 'password-generator'],
   }),
-  planned({ id: 'passphrase-generator', name: 'Passphrase Generator', description: 'Generate memorable multi-word passphrases.', category: 'security', icon: 'KeySquare', keywords: ['passphrase', 'diceware', 'words'], reason: 'Needs a curated word list bundled for offline use.' }),
+  defineTool({
+    id: 'passphrase-generator',
+    name: 'Passphrase Generator',
+    description: 'Strong, memorable passphrases like “velvet-orbit-canyon-sprout-mango-tidal” from the EFF word list, with an honest strength estimate.',
+    category: 'security',
+    icon: 'KeySquare',
+    status: 'available',
+    intents: ['create'],
+    keywords: ['passphrase', 'diceware', 'memorable password', 'strong password', 'random words', 'eff word list', 'xkcd password'],
+    aliases: ['diceware generator', 'memorable password generator'],
+    requires: ['webCrypto'],
+    related: ['password-generator', 'random-token', 'hash-generator'],
+  }),
   defineTool({
     id: 'qr-reader',
     name: 'QR Code Reader',
@@ -144,7 +156,22 @@ export const dataTools = [
     limitations: ['Charts, images, formatting and macros are not shown; macros never run.', 'Password-protected workbooks are not supported.'],
     related: ['csv-viewer', 'csv-to-json', 'excel-to-pdf'],
   }),
-  planned({ id: 'presentation-info', name: 'Presentation Inspector', description: 'View slide count, titles and media inside a PPTX.', category: 'presentations', icon: 'Presentation', inputTypes: ['.pptx'], keywords: ['pptx', 'slides', 'metadata'], reason: 'Scheduled after the data phase.' }),
+  defineTool({
+    id: 'presentation-info',
+    name: 'PowerPoint Inspector',
+    description: 'Open a .pptx to see every slide’s title, text and speaker notes, extract all images and media, and check hidden slides and author details.',
+    category: 'presentations',
+    icon: 'Presentation',
+    status: 'available',
+    inputTypes: ['.pptx', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'],
+    outputTypes: ['text/plain'],
+    intents: ['analyze', 'convert'],
+    keywords: ['pptx', 'powerpoint', 'slides', 'extract images from pptx', 'pptx to text', 'speaker notes', 'presentation metadata', 'hidden slides'],
+    aliases: ['pptx to text', 'extract images from powerpoint', 'powerpoint viewer'],
+    actionLabel: 'Inspect slides',
+    limitations: ['Shows text, notes and media — slides are not rendered visually.', 'Old .ppt files must be saved as .pptx first.'],
+    related: ['pdf-to-text', 'zip-extractor', 'image-compressor'],
+  }),
 ];
 
 export const calculatorTools = [

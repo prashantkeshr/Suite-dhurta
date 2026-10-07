@@ -40,10 +40,10 @@ function toSideBySide(changes: Change[]): SideRow[] {
   return rows;
 }
 
-export default function TextDiffTool({ initialFiles }: { tool: ToolDefinition; initialFiles?: File[] }) {
-  const [a, setA] = useState('');
-  const [b, setB] = useState('');
-  const [names, setNames] = useState(['original.txt', 'changed.txt']);
+export default function TextDiffTool({ initialFiles, texts }: { tool: ToolDefinition; initialFiles?: File[]; texts?: { a: string; b: string; names: [string, string] } }) {
+  const [a, setA] = useState(texts?.a ?? '');
+  const [b, setB] = useState(texts?.b ?? '');
+  const [names, setNames] = useState<string[]>(texts?.names ?? ['original.txt', 'changed.txt']);
   const [mode, setMode] = useState<Mode>('lines');
   const [view, setView] = useState<'split' | 'unified'>('split');
   const [ignoreWs, setIgnoreWs] = useState(false);

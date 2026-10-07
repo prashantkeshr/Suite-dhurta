@@ -9,7 +9,7 @@ import { Button, Card, Progress } from '@/components/ui/primitives';
 import { ErrorState } from '@/components/ui/states';
 import { FileDropzone } from '@/components/files/FileDropzone';
 import { SortableFileList } from '@/components/files/SortableFileList';
-import { useSaver } from '@/components/tools/common';
+import { useSaver, ContinueButton } from '@/components/tools/common';
 import { loadPdf, mergePdfs } from './engine';
 import { useJob } from './useJob';
 import { useInitialFiles } from '@/hooks/useInitialFiles';
@@ -117,6 +117,7 @@ export default function PdfMergeTool({ tool, initialFiles }: { tool: ToolDefinit
                 <Button variant="primary" className="w-full justify-center" icon={<Download size={16} />} onClick={() => save(job.result!.blob, `${name.trim() || 'merged'}.pdf`)}>
                   {t('action.download')}
                 </Button>
+                <ContinueButton size="md" files={[{ blob: job.result.blob, name: `${name.trim() || 'merged'}.pdf` }]} />
               </div>
             )}
           </Card>

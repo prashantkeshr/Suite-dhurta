@@ -226,4 +226,4 @@ Cache matching uses `ignoreVary`: a file saved by the page with `fetch()` and th
 | 4 Text & data | Done |
 | 5 Productivity | Done: QR generator/reader, barcodes, interest/scientific/date/BMI calculators, notes, to-do, timer |
 | 6 PWA | Done: generated service worker, install prompt, offline app shell, honest per-tool offline status, save-all with refresh on update, update prompt, file handlers and share target |
-| 7 Advanced documents | OCR and Office conversions, only if quality is proven |
+| 7 Advanced documents | Part 1 done: PDF compress (target size), PDF compare, HEIC (beta), PowerPoint inspector, passphrases, plus time tools and the Monaco code editor. Remaining: OCR, PDF encryption, Office conversions — only if quality is proven |

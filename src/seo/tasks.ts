@@ -386,6 +386,114 @@ export const TASKS: Task[] = [
     keywords: ['rd calculator', 'recurring deposit calculator', 'rd maturity calculator'],
   },
 
+  /* ---------- PDF size ---------- */
+  ...([
+    [100, '100 KB', 'very strict portals'],
+    [200, '200 KB', 'most exam and government portals'],
+    [1000, '1 MB', 'email attachments and job portals'],
+  ] as const).map(
+    ([kb, label, who]) =>
+      ({
+        slug: `compress-pdf-to-${kb >= 1000 ? `${kb / 1000}mb` : `${kb}kb`}`,
+        lang: 'en',
+        toolId: 'pdf-compressor',
+        preset: { mode: 'strong', targetKb: kb, dpi: 150 },
+        title: `Compress PDF to ${label} Online — Free, No Upload`,
+        h1: `Compress a PDF to ${label}`,
+        description: `Reduce a PDF to under ${label} for ${who}. Free, no sign-up — your document is compressed in your browser and never uploaded.`,
+        intro: `Upload limits like “PDF under ${label}” are common on ${who}. Choose your PDF and it is rebuilt just under ${label}: pages are stored as images at the best resolution and quality that fit, without going so low that text becomes unreadable. Best for scanned documents, certificates and marksheets.`,
+        steps: ['Choose your PDF.', `The target is already set to ${label} — press “Compress PDF”.`, 'Check the new size and download it.'],
+        faqs: [
+          { q: 'Will the text still be readable?', a: 'Yes — resolution never drops below about 50 dpi, and the tool tells you if the target cannot be reached while staying readable. Text does become part of the image, so it can no longer be selected or searched.' },
+          { q: 'My PDF is mostly text. What should I do?', a: 'Try “Light” mode first: it keeps text selectable. If that is not small enough, use Strong mode with “Black and white”, which shrinks text documents a lot.' },
+          { q: `Is “${label}” counted as 1000 or 1024?`, a: `Targets are counted in thousands of bytes, so the file also fits portals that count 1 KB as 1024 bytes.` },
+        ],
+        twin: kb === 200 ? 'hi/pdf-ka-size-kam-kare' : undefined,
+        related: ['compress-pdf-to-200kb', 'jpg-to-pdf', 'compress-image-to-100kb'].filter((x) => x !== `compress-pdf-to-${kb}kb`),
+        keywords: [`compress pdf to ${label.toLowerCase().replace(' ', '')}`, `pdf ${label.toLowerCase().replace(' ', '')}`, `reduce pdf size to ${label.toLowerCase()}`, 'pdf size reducer'],
+      }) as Task,
+  ),
+
+  /* ---------- Time ---------- */
+  {
+    slug: 'hours-calculator',
+    lang: 'en',
+    toolId: 'time-calculator',
+    preset: { mode: 'timesheet' },
+    title: 'Hours Calculator — Total Hours Worked with Breaks',
+    h1: 'Hours worked calculator',
+    description: 'Add up hours worked from start and end times, minus breaks, including night shifts. Get decimal hours for payroll and a CSV timesheet. Free.',
+    intro: 'Enter each day’s start and end time and the break in minutes. Night shifts that end after midnight are handled automatically, and the total is shown both as hours:minutes and as decimal hours, which payroll and invoices usually need.',
+    steps: ['Enter start and end times for each day (9:30, 21:30 or 9:30 pm).', 'Add break minutes.', 'Read the total and download the timesheet if needed.'],
+    faqs: [
+      { q: 'How do I convert minutes to decimal hours?', a: 'Divide by 60: 45 minutes is 0.75 hours, so 7 h 45 min is 7.75 hours. The calculator shows both.' },
+      { q: 'What about a shift from 10 pm to 6 am?', a: 'An end time earlier than the start is treated as the next day, so 22:00 to 06:00 counts as 8 hours.' },
+    ],
+    related: ['ist-to-est'],
+    keywords: ['hours calculator', 'hours worked calculator', 'timesheet calculator', 'work hours calculator', 'decimal hours'],
+  },
+  ...([
+    ['ist-to-est', 'America/New_York', 'EST/EDT (New York)', 'US Eastern time'],
+    ['ist-to-pst', 'America/Los_Angeles', 'PST/PDT (California)', 'US Pacific time'],
+    ['ist-to-gmt', 'Europe/London', 'GMT/BST (London)', 'UK time'],
+  ] as const).map(
+    ([slug, zone, label, plain]) =>
+      ({
+        slug,
+        lang: 'en',
+        toolId: 'time-zone-converter',
+        preset: { from: 'Asia/Kolkata', to: `${zone},UTC` },
+        title: `IST to ${label.split(' ')[0]} Converter — India to ${plain}`,
+        h1: `Convert IST to ${label}`,
+        description: `Convert Indian Standard Time to ${plain} for any date, with daylight saving applied automatically. Plan calls and meetings across time zones. Free.`,
+        intro: `India does not change its clocks, but ${plain} does, so the gap changes during the year. Pick a date and time in IST and see the exact ${plain} — and the other way round with one tap.`,
+        steps: ['Pick the date and the time in IST.', `Read ${plain} below, with “−1 day” or “+1 day” when the date changes.`, 'Tap the arrows on a row to convert from that zone instead.'],
+        faqs: [
+          { q: `What is the time difference between IST and ${plain}?`, a: `It depends on the date because of daylight saving in ${plain}. Choose a date and the converter shows the exact offset.` },
+          { q: 'Can I add more cities?', a: 'Yes — type any city or time zone (for example Europe/Paris or Asia/Dubai) and add it.' },
+        ],
+        related: ['ist-to-est', 'ist-to-pst', 'ist-to-gmt', 'hours-calculator'].filter((x) => x !== slug),
+        keywords: [`ist to ${slug.slice(7)}`, `india time to ${plain.toLowerCase()}`, 'time zone converter', 'meeting time converter'],
+      }) as Task,
+  ),
+
+  /* ---------- Presentations ---------- */
+  {
+    slug: 'extract-images-from-pptx',
+    lang: 'en',
+    toolId: 'presentation-info',
+    title: 'Extract Images from PowerPoint (PPTX) — Free',
+    h1: 'Extract all images from a PowerPoint',
+    description: 'Save every picture, video and audio file embedded in a .pptx — one at a time or all as a ZIP — plus the slide text and notes. Free and private.',
+    intro: 'Open a .pptx and every embedded picture appears as a thumbnail, in its original quality. Save one, or download them all in a ZIP. The slide titles, text and speaker notes are listed too, ready to copy.',
+    steps: ['Open the .pptx file.', 'Click a picture to save it, or use “All (ZIP)”.', 'Copy or download the slide text if you need it.'],
+    faqs: [
+      { q: 'Are the images resized?', a: 'No — they are saved exactly as they are stored inside the presentation.' },
+      { q: 'Does it work with .ppt files?', a: 'Only .pptx. Open an old .ppt in PowerPoint, Google Slides or LibreOffice and save it as .pptx first.' },
+    ],
+    keywords: ['extract images from pptx', 'save images from powerpoint', 'pptx to text', 'download images from presentation'],
+  },
+
+  /* ---------- Hindi: PDF size ---------- */
+  {
+    slug: 'hi/pdf-ka-size-kam-kare',
+    lang: 'hi',
+    toolId: 'pdf-compressor',
+    preset: { mode: 'strong', targetKb: 200, dpi: 150 },
+    title: 'PDF का साइज़ कम करें — 200 KB तक, मुफ़्त',
+    h1: 'PDF का साइज़ 200 KB से कम करें',
+    description: 'परीक्षा और सरकारी पोर्टल के लिए PDF को 200 KB से कम करें। मुफ़्त, बिना साइन-अप — आपकी PDF अपलोड नहीं होती।',
+    intro: 'कई पोर्टल 200 KB से बड़ी PDF नहीं लेते। अपनी PDF चुनें — टारगेट पहले से 200 KB है। पेज इमेज के रूप में सबसे अच्छी क्वालिटी पर रखे जाते हैं जो सीमा में आए, और टेक्स्ट पढ़ने लायक बना रहता है। स्कैन किए दस्तावेज़ और मार्कशीट के लिए सबसे अच्छा।',
+    steps: ['PDF चुनें।', '“Compress PDF” दबाएँ — टारगेट 200 KB है।', 'नया साइज़ देखें और डाउनलोड करें।'],
+    faqs: [
+      { q: 'क्या टेक्स्ट पढ़ा जा सकेगा?', a: 'हाँ। रेज़ोल्यूशन लगभग 50 dpi से नीचे नहीं जाता। पर टेक्स्ट इमेज का हिस्सा बन जाता है, इसलिए उसे कॉपी या सर्च नहीं किया जा सकता।' },
+      { q: 'साइज़ और कम चाहिए तो?', a: '“Black and white” चालू करें — टेक्स्ट वाले दस्तावेज़ इससे बहुत छोटे हो जाते हैं।' },
+    ],
+    twin: 'compress-pdf-to-200kb',
+    related: ['hi/photo-ka-size-kam-kare', 'hi/jpg-se-pdf'],
+    keywords: ['pdf ka size kam kare', 'पीडीएफ का साइज़ कम करें', 'pdf 200kb', 'pdf size kam kaise kare'],
+  },
+
   /* ---------- Hindi ---------- */
   {
     slug: 'hi/photo-ka-size-kam-kare',
