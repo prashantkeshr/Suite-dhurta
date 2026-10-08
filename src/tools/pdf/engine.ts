@@ -128,6 +128,25 @@ export async function stripMetadata(doc: PDFDocument): Promise<Blob> {
   return finish(doc);
 }
 
+export interface EditableMeta {
+  title: string;
+  author: string;
+  subject: string;
+  keywords: string;
+  creator: string;
+}
+
+/** Write the Info dictionary fields. Empty strings clear a field. */
+export async function setMetadata(doc: PDFDocument, meta: EditableMeta): Promise<Blob> {
+  doc.setTitle(meta.title);
+  doc.setAuthor(meta.author);
+  doc.setSubject(meta.subject);
+  doc.setKeywords(meta.keywords ? meta.keywords.split(',').map((k) => k.trim()).filter(Boolean) : []);
+  doc.setCreator(meta.creator);
+  doc.setModificationDate(new Date());
+  return finish(doc);
+}
+
 /** Paper sizes in PDF points (1/72 inch). */
 export const PAGE_SIZES = {
   fit: null,

@@ -1,15 +1,15 @@
 import { useCallback, useState } from 'react';
-import { Download, Eraser, X } from 'lucide-react';
+import { Download, Eraser, X, Save } from 'lucide-react';
 import type { ToolDefinition } from '@/types/tool';
 import { acceptAttribute, formatLabel } from '@/tools/registry';
 import { useStore } from '@/storage/store';
 import { outputName } from '@/utils/filename';
 import { formatBytes } from '@/utils/format';
-import { Button, Card, Progress } from '@/components/ui/primitives';
+import { Button, Card, Progress, TextInput } from '@/components/ui/primitives';
 import { ErrorState } from '@/components/ui/states';
 import { FileDropzone } from '@/components/files/FileDropzone';
 import { InfoTable, CopyButton, useSaver, ContinueButton } from '@/components/tools/common';
-import { loadPdf, readInfo, stripMetadata, type PdfInfo } from './engine';
+import { loadPdf, readInfo, stripMetadata, setMetadata, type PdfInfo, type EditableMeta } from './engine';
 import { useJob } from './useJob';
 import { useInitialFiles } from '@/hooks/useInitialFiles';
 
@@ -36,13 +36,17 @@ export default function PdfMetadataTool({ tool, initialFiles }: { tool: ToolDefi
   const job = useJob<Blob>();
   const save = useSaver();
   const addHistory = useStore((s) => s.addHistory);
+  const [edit, setEdit] = useState<EditableMeta | null>(null);
+  const [lastAction, setLastAction] = useState<'strip' | 'edit'>('strip');
 
   const open = useCallback(async (files: File[]) => {
     setError(null);
     try {
       const { doc, file } = await loadPdf(files[0]);
       setFile(file);
-      setInfo(readInfo(doc));
+      const i = readInfo(doc);
+      setInfo(i);
+      setEdit({ title: i.title ?? '', author: i.author ?? '', subject: i.subject ?? '', keywords: i.keywords ?? '', creator: i.creator ?? '' });
     } catch (err) {
       setFile(null);
       setInfo(null);
@@ -84,7 +88,19 @@ export default function PdfMetadataTool({ tool, initialFiles }: { tool: ToolDefi
       const { doc } = await loadPdf(file);
       return stripMetadata(doc);
     });
+    setLastAction('strip');
     if (r) addHistory(tool.id, 'Removed PDF metadata');
+  };
+
+  const applyEdit = async () => {
+    if (!file || !edit) return;
+    const r = await job.run(async (_signal, report) => {
+      report(null, 'Saving properties…');
+      const { doc } = await loadPdf(file);
+      return setMetadata(doc, edit);
+    });
+    setLastAction('edit');
+    if (r) addHistory(tool.id, 'Edited PDF properties');
   };
 
   return (
@@ -117,6 +133,22 @@ export default function PdfMetadataTool({ tool, initialFiles }: { tool: ToolDefi
                 ))}
               </ul>
             </Card>
+            {edit && (
+              <Card className="space-y-3 p-4">
+                <h2 className="text-sm font-semibold">Edit properties</h2>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <TextInput label="Title" value={edit.title} onChange={(e) => setEdit({ ...edit, title: e.target.value })} />
+                  <TextInput label="Author" value={edit.author} onChange={(e) => setEdit({ ...edit, author: e.target.value })} />
+                  <TextInput label="Subject" value={edit.subject} onChange={(e) => setEdit({ ...edit, subject: e.target.value })} />
+                  <TextInput label="Keywords (comma-separated)" value={edit.keywords} onChange={(e) => setEdit({ ...edit, keywords: e.target.value })} />
+                  <TextInput label="Creator app" value={edit.creator} onChange={(e) => setEdit({ ...edit, creator: e.target.value })} className="sm:col-span-2" />
+                </div>
+                <Button icon={<Save size={16} />} loading={job.running} onClick={applyEdit}>
+                  Save properties to a new PDF
+                </Button>
+                <p className="text-xs text-muted">Leaving a field empty clears it. The modified date is set to now; page content is unchanged.</p>
+              </Card>
+            )}
           </div>
           <Card className="h-fit space-y-3 p-4 lg:sticky lg:top-20">
             <h2 className="text-sm font-semibold">Remove metadata</h2>
@@ -129,11 +161,11 @@ export default function PdfMetadataTool({ tool, initialFiles }: { tool: ToolDefi
               </Button>
             )}
             {job.result && (
-              <Button className="w-full justify-center" icon={<Download size={16} />} onClick={() => save(job.result!, outputName(file.name, 'clean', 'pdf'))}>
-                Download clean PDF ({formatBytes(job.result.size)})
+              <Button className="w-full justify-center" icon={<Download size={16} />} onClick={() => save(job.result!, outputName(file.name, lastAction === 'edit' ? 'edited' : 'clean', 'pdf'))}>
+                Download {lastAction === 'edit' ? 'edited' : 'clean'} PDF ({formatBytes(job.result.size)})
               </Button>
             )}
-            {job.result && <ContinueButton size="md" files={[{ blob: job.result, name: outputName(file.name, 'clean', 'pdf') }]} />}
+            {job.result && <ContinueButton size="md" files={[{ blob: job.result, name: outputName(file.name, lastAction === 'edit' ? 'edited' : 'clean', 'pdf') }]} />}
             <p className="text-xs text-muted">Hidden data can also exist inside page content, annotations or attachments; this tool does not remove those.</p>
           </Card>
         </div>

@@ -37,6 +37,7 @@ export const TOOL_LOADERS: Record<string, Loader> = {
   'photopea': () => import('./image/PhotopeaTool'),
   'image-info': () => import('./image/ImageInfoTool'),
   'heic-converter': () => import('./image/HeicTool'),
+  'image-metadata': () => import('./image/ImageMetadataTool'),
   'image-to-base64': () => import('./image/ImageBase64Tool'),
   'base64-to-image': () => import('./image/ImageBase64Tool'),
 

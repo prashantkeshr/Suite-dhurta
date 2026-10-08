@@ -494,6 +494,41 @@ export const TASKS: Task[] = [
     keywords: ['pdf ka size kam kare', 'पीडीएफ का साइज़ कम करें', 'pdf 200kb', 'pdf size kam kaise kare'],
   },
 
+  /* ---------- Privacy / metadata ---------- */
+  {
+    slug: 'remove-exif-data',
+    lang: 'en',
+    toolId: 'image-metadata',
+    title: 'Remove EXIF Data from Photos — Free, No Upload',
+    h1: 'Remove EXIF data from a photo',
+    description: 'Strip hidden EXIF metadata — camera, date and settings — from JPEG and PNG photos in your browser. Lossless, free, and nothing is uploaded.',
+    intro: 'Every photo your phone or camera takes carries hidden EXIF data: the device, the exact date and time, camera settings and often your GPS location. Open a photo here to see exactly what it reveals, then download a clean copy with all of it removed. For JPEG and PNG the picture itself is never re-compressed, so the quality is identical.',
+    steps: ['Choose a JPEG or PNG photo.', 'See every piece of metadata it contains, with personal items flagged.', 'Press “Remove all metadata” and download the clean photo.'],
+    faqs: [
+      { q: 'Does removing EXIF reduce image quality?', a: 'No. For JPEG and PNG the metadata markers are removed without touching the image data, so the picture is pixel-for-pixel identical.' },
+      { q: 'What does EXIF data reveal about me?', a: 'Commonly the camera or phone model, the exact date and time, camera settings, and — if location was on — the GPS coordinates where the photo was taken.' },
+      { q: 'Is my photo uploaded?', a: 'No. It is read and cleaned entirely in your browser, so it works for private and sensitive photos.' },
+    ],
+    related: ['remove-gps-from-photo', 'compress-image-to-100kb'],
+    keywords: ['remove exif data', 'strip exif', 'remove metadata from photo', 'exif remover', 'delete exif data'],
+  },
+  {
+    slug: 'remove-gps-from-photo',
+    lang: 'en',
+    toolId: 'image-metadata',
+    title: 'Remove GPS Location from a Photo — Free & Private',
+    h1: 'Remove GPS location from a photo',
+    description: 'Delete the hidden GPS location saved inside a photo before you share or post it. Free, works in your browser, photo never uploaded.',
+    intro: 'Photos taken with location turned on store the exact coordinates where you were. Anyone you send the photo to can read them. Open your photo here — if it has a location, you can see it on a map — then download a copy with the location (and all other metadata) removed.',
+    steps: ['Open the photo (JPEG or PNG).', 'Check whether it contains a GPS location.', 'Remove all metadata and download the safe copy to share.'],
+    faqs: [
+      { q: 'How do I know if my photo has my location in it?', a: 'This tool shows the GPS coordinates if they are present, with a link to see them on a map. If there is none, it tells you the photo is clean.' },
+      { q: 'Do social media sites remove location automatically?', a: 'Most large sites strip location when you upload, but messaging apps, email and file sharing often keep it. Removing it yourself first is the safe choice.' },
+    ],
+    related: ['remove-exif-data', 'compress-image-to-200kb'],
+    keywords: ['remove gps from photo', 'remove location from photo', 'delete geotag', 'remove location data from image', 'photo location remover'],
+  },
+
   /* ---------- Hindi ---------- */
   {
     slug: 'hi/photo-ka-size-kam-kare',
