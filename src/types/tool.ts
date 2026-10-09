@@ -19,6 +19,7 @@ export type CategoryId =
   | 'generators'
   | 'calculators'
   | 'productivity'
+  | 'business'
   | 'converters'
   | 'files';
 

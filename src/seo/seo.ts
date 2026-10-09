@@ -149,6 +149,7 @@ const APP_CATEGORY: Record<string, string> = {
   generators: 'DesignApplication',
   calculators: 'FinanceApplication',
   productivity: 'BusinessApplication',
+  business: 'BusinessApplication',
   converters: 'UtilitiesApplication',
   files: 'UtilitiesApplication',
 };

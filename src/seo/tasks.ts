@@ -529,6 +529,42 @@ export const TASKS: Task[] = [
     keywords: ['remove gps from photo', 'remove location from photo', 'delete geotag', 'remove location data from image', 'photo location remover'],
   },
 
+  /* ---------- Business ---------- */
+  {
+    slug: 'profit-margin-calculator',
+    lang: 'en',
+    toolId: 'business-calculator',
+    preset: { mode: 'margin' },
+    title: 'Profit Margin & Markup Calculator — Free Online',
+    h1: 'Profit margin & markup calculator',
+    description: 'Work out profit, margin and markup from cost and selling price instantly. Free, private, runs in your browser.',
+    intro: 'Enter the cost price and selling price to see your profit, your margin (profit as a share of the selling price) and your markup (profit as a share of cost). Margin and markup are often confused — this shows both so you can price correctly.',
+    steps: ['Enter the cost price.', 'Enter the selling price.', 'Read the profit, margin and markup.'],
+    faqs: [
+      { q: 'What is the difference between margin and markup?', a: 'Margin is profit divided by the selling price; markup is profit divided by the cost. A 50% markup on a Rs. 100 cost gives a Rs. 150 price, which is a 33.3% margin.' },
+      { q: 'How do I set a price for a target margin?', a: 'Price = Cost ÷ (1 − margin). For a 40% margin on a Rs. 600 cost, the price is 600 ÷ 0.6 = Rs. 1000.' },
+    ],
+    related: ['break-even-calculator', 'home-loan-emi-calculator'],
+    keywords: ['profit margin calculator', 'markup calculator', 'margin calculator', 'profit calculator', 'selling price calculator'],
+  },
+  {
+    slug: 'break-even-calculator',
+    lang: 'en',
+    toolId: 'business-calculator',
+    preset: { mode: 'breakeven' },
+    title: 'Break-Even Point Calculator — Units & Revenue',
+    h1: 'Break-even point calculator',
+    description: 'Find how many units you must sell to cover your costs, from fixed costs, price and variable cost. Free and instant.',
+    intro: 'Your break-even point is where total revenue equals total cost — no profit, no loss. Enter your fixed costs, the selling price per unit and the variable cost per unit to see the number of units and the revenue you need to break even.',
+    steps: ['Enter fixed costs for the period.', 'Enter the selling price and variable cost per unit.', 'Read the break-even units and revenue.'],
+    faqs: [
+      { q: 'What is contribution per unit?', a: 'The selling price minus the variable cost of one unit — the amount each sale contributes towards your fixed costs. Break-even units = fixed costs ÷ contribution per unit.' },
+      { q: 'What counts as a fixed cost?', a: 'Costs that do not change with how much you sell — rent, salaries, insurance. Variable costs (materials, packaging, per-unit shipping) rise with each unit.' },
+    ],
+    related: ['profit-margin-calculator', 'home-loan-emi-calculator'],
+    keywords: ['break even calculator', 'break even point', 'breakeven analysis', 'break even units', 'bep calculator'],
+  },
+
   /* ---------- Hindi ---------- */
   {
     slug: 'hi/photo-ka-size-kam-kare',

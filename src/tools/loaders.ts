@@ -130,6 +130,10 @@ export const TOOL_LOADERS: Record<string, Loader> = {
   'todo-list': () => import('./productivity/TodoTool'),
   'timer': () => import('./productivity/TimerTool'),
 
+  // Business
+  'invoice-generator': () => import('./business/InvoiceTool'),
+  'business-calculator': () => import('./business/BusinessCalcTool'),
+
   // Files
   'file-info': () => import('./files/FileInfoTool'),
   'zip-creator': () => import('./files/ZipCreatorTool'),

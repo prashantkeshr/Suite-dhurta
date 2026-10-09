@@ -10,7 +10,7 @@ A privacy-first productivity suite that runs entirely in the browser. Images, PD
 
 ## Status
 
-Phases 1 (foundation), 2 (images), 3 (PDF core), 4 (text & data), 5 (productivity), 6 (installable app, offline) and the first part of 7 (advanced documents) are complete, plus working tools pulled forward from later phases — 90 tools in total:
+Phases 1 (foundation), 2 (images), 3 (PDF core), 4 (text & data), 5 (productivity), 6 (installable app, offline) and the first part of 7 (advanced documents) are complete, plus working tools pulled forward from later phases — 96 tools in total:
 
 | Area | Available now | Coming soon |
 |---|---|---|
@@ -22,6 +22,7 @@ Phases 1 (foundation), 2 (images), 3 (PDF core), 4 (text & data), 5 (productivit
 | Generators | **Branded QR code generator** — link, text, Wi-Fi, UPI payment, contact (vCard), email, SMS, phone; logo in the centre (modules cleared, ECC H), square/rounded/dots/fluid dots, square/rounded/circle/leaf corners, colours, gradient, transparent background, caption frame, “save as my brand style”; every design is re-decoded (scan check) with contrast/inversion/logo-size warnings; SVG and PNG up to 4096 px. **Barcode generator** — Code 128, EAN-13/8, UPC-A, Code 39, ITF-14, Codabar with GS1 check digits; SVG/PNG. | — |
 | Data | **PowerPoint inspector** (slide titles, text and notes, hidden slides, extract all media, properties), CSV ↔ JSON, CSV viewer/editor (virtualised grid, sort, filter, edit, undo, dedupe, split/merge columns, formula-safe export), spreadsheet viewer (XLSX/XLS/ODS → CSV/JSON, workbook properties) | Excel → PDF |
 | Calculators | **time calculator** (add/subtract durations, hours worked with breaks and night shifts + CSV, clock + duration, decimal hours), **time zone converter** (DST-aware, any IANA zone), Percentage/discount/profit, GST (2025 slabs), EMI + schedule, simple & compound interest (FD/RD, monthly deposits, EAR, yearly table), scientific (safe parser: trig in deg/rad, logs, roots, factorial, nCr/nPr, implicit multiplication, history), date & age (exact age, next birthday, days/working days between dates, month-end-safe add/subtract), BMI (WHO and Asian-Indian cut-offs, healthy range), unit converter (13 quantities) | — |
+| Business | **GST invoice generator** (CGST/SGST or IGST, HSN, discounts, amount in words → PDF; seller details saved locally), **business calculator** (profit margin & markup, break-even, discount) | Income tax, currency (live rates) |
 | Productivity | Notes (autosave, search, pin, .md/.txt export, JSON backup/restore), to-do list (due dates, priorities, overdue, filters, CSV/JSON), timer + stopwatch with laps + Pomodoro (sound, optional notification, accurate in background tabs). Saved only in this browser; synced between open tabs | Rich text editor |
 | Files | File info (magic-byte detection, SHA-256, duplicates), create ZIP, extract ZIP | — |
 
