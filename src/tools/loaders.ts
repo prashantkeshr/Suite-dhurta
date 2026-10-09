@@ -97,6 +97,9 @@ export const TOOL_LOADERS: Record<string, Loader> = {
   'random-token': () => import('./security/RandomIdTool'),
   'hash-generator': () => import('./security/HashTool'),
   'passphrase-generator': () => import('./security/PassphraseTool'),
+  'file-encrypt': () => import('./security/FileEncryptTool'),
+  'password-strength': () => import('./security/PasswordStrengthTool'),
+  'totp-generator': () => import('./security/TotpTool'),
 
   // Data
   'csv-to-json': csvJson,
