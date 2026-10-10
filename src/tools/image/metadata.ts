@@ -27,6 +27,7 @@ export interface ImageMetadata {
 const TYPE_SIZE: Record<number, number> = { 1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 6: 1, 7: 1, 8: 2, 9: 4, 10: 8, 11: 4, 12: 8 };
 
 const TAGS: Record<number, string> = {
+  0x010e: 'Description',
   0x010f: 'Make',
   0x0110: 'Model',
   0x0112: 'Orientation',
@@ -298,3 +299,70 @@ export function stripMetadata(bytes: Uint8Array): Uint8Array | null {
 }
 
 export const canStripLosslessly = (bytes: Uint8Array) => isJpeg(bytes) || isPng(bytes);
+
+
+/* ---------- PNG text writing ---------- */
+
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+    t[n] = c >>> 0;
+  }
+  return t;
+})();
+
+function crc32(bytes: Uint8Array): number {
+  let c = 0xffffffff;
+  for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xff] ^ (c >>> 8);
+  return (c ^ 0xffffffff) >>> 0;
+}
+
+function pngChunk(type: string, data: Uint8Array): Uint8Array {
+  const typeBytes = new Uint8Array([...type].map((ch) => ch.charCodeAt(0)));
+  const body = new Uint8Array(typeBytes.length + data.length);
+  body.set(typeBytes);
+  body.set(data, typeBytes.length);
+  const out = new Uint8Array(8 + data.length + 4);
+  const v = new DataView(out.buffer);
+  v.setUint32(0, data.length);
+  out.set(body, 4);
+  v.setUint32(out.length - 4, crc32(body));
+  return out;
+}
+
+/** Rebuild a PNG with the given tEXt key/values (existing text chunks are replaced). */
+export function writePngText(bytes: Uint8Array, fields: Record<string, string>): Uint8Array {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const out: Uint8Array[] = [bytes.subarray(0, 8)]; // signature
+  let offset = 8;
+  let inserted = false;
+  const textChunks = () =>
+    Object.entries(fields)
+      .filter(([, val]) => val.trim())
+      .map(([k, val]) => pngChunk('tEXt', new Uint8Array([...[...k.slice(0, 79)].map((c) => c.charCodeAt(0) & 0xff), 0, ...[...val].map((c) => c.charCodeAt(0) & 0xff)])));
+  while (offset + 8 <= view.byteLength) {
+    const len = view.getUint32(offset);
+    const type = String.fromCharCode(bytes[offset + 4], bytes[offset + 5], bytes[offset + 6], bytes[offset + 7]);
+    const end = offset + 12 + len;
+    if (type === 'IEND') {
+      if (!inserted) {
+        out.push(...textChunks());
+        inserted = true;
+      }
+      out.push(bytes.subarray(offset, end));
+      break;
+    }
+    if (!PNG_TEXT_CHUNKS.has(type)) out.push(bytes.subarray(offset, end));
+    offset = end;
+  }
+  const total = out.reduce((a, c) => a + c.length, 0);
+  const result = new Uint8Array(total);
+  let p = 0;
+  for (const c of out) {
+    result.set(c, p);
+    p += c.length;
+  }
+  return result;
+}

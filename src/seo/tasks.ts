@@ -565,6 +565,40 @@ export const TASKS: Task[] = [
     keywords: ['break even calculator', 'break even point', 'breakeven analysis', 'break even units', 'bep calculator'],
   },
 
+  /* ---------- Metadata editing ---------- */
+  {
+    slug: 'change-date-taken-on-photo',
+    lang: 'en',
+    toolId: 'metadata-editor',
+    title: 'Change the Date Taken on a Photo — Free, No Upload',
+    h1: 'Change the date & time a photo was taken',
+    description: 'Edit the EXIF "date taken" stored inside a JPEG — fix a wrong camera clock or set any date. Free, in your browser, photo never uploaded.',
+    intro: 'If your camera clock was wrong, the date a photo shows can be off by hours or years. Open the photo here to see its current "date taken", change it to the correct date and time, and save a new copy. You can also edit the camera make, author, copyright and GPS location at the same time.',
+    steps: ['Open the JPEG photo.', 'Change the "Date & time taken" field.', 'Save the new photo with the corrected date.'],
+    faqs: [
+      { q: 'Does this change the Windows file date?', a: 'No. It changes the "date taken" recorded inside the photo (what phones and photo apps show and sort by). The operating-system "date modified" is set by Windows when the file is saved and cannot be changed from a browser.' },
+      { q: 'Will the picture quality change?', a: 'No. Only the metadata is rewritten; the image itself is left exactly as it was.' },
+    ],
+    related: ['remove-exif-data', 'remove-gps-from-photo'],
+    keywords: ['change date taken on photo', 'edit photo date', 'change exif date', 'fix photo date', 'edit date taken'],
+  },
+  {
+    slug: 'edit-exif-data',
+    lang: 'en',
+    toolId: 'metadata-editor',
+    title: 'Edit EXIF Data Online — Change Photo Metadata Free',
+    h1: 'Edit EXIF data in a photo',
+    description: 'Change the EXIF metadata in a JPEG — date, camera make and model, artist, copyright, description and GPS location. Free and private, in your browser.',
+    intro: 'EXIF data is the information a camera stores inside a photo. This editor lets you change any of it: the date taken, the camera make and model, the artist and copyright, a description, and the GPS location — or remove it all. Nothing is uploaded.',
+    steps: ['Open a JPEG or PNG photo (or a PDF for document properties).', 'Edit the fields you want to change.', 'Save a new copy — or remove all metadata instead.'],
+    faqs: [
+      { q: 'Which fields can I edit?', a: 'For JPEG: date taken, camera make and model, lens, artist, copyright, software, description and GPS. For PNG: title, author, description and other text fields. For PDF: title, author, subject, keywords and the creation/modification dates.' },
+      { q: 'Can I edit the GPS location?', a: 'Yes — tick GPS location and enter the latitude and longitude, or untick it to remove the location entirely.' },
+    ],
+    related: ['change-date-taken-on-photo', 'remove-exif-data'],
+    keywords: ['edit exif data', 'exif editor', 'change photo metadata', 'edit metadata online', 'metadata editor'],
+  },
+
   /* ---------- Hindi ---------- */
   {
     slug: 'hi/photo-ka-size-kam-kare',

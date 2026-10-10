@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readMetadata, stripJpeg, stripPng } from './metadata';
+import { readMetadata, stripJpeg, stripPng, writePngText } from './metadata';
 
 /** Build a little-endian EXIF TIFF block with Make, Model and a GPS location. */
 function exifBlock(): Uint8Array {
@@ -87,5 +87,22 @@ describe('image metadata', () => {
 
   it('reports no metadata for a clean file', () => {
     expect(readMetadata(new Uint8Array([0xff, 0xd8, 0xff, 0xda, 0, 2, 0xff, 0xd9])).hasMetadata).toBe(false);
+  });
+
+  it('writes PNG text fields that read back (valid CRC)', () => {
+    const sig = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+    const u32 = (n: number) => [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255];
+    const ihdr = [...u32(13), ...[...'IHDR'].map((c) => c.charCodeAt(0)), ...new Array(13).fill(0), 0, 0, 0, 0];
+    const iend = [...u32(0), ...[...'IEND'].map((c) => c.charCodeAt(0)), 0, 0, 0, 0];
+    const png = new Uint8Array([...sig, ...ihdr, ...iend]);
+    const out = writePngText(png, { Author: 'Prashant', Title: 'Sunset', Comment: '' });
+    const m = readMetadata(out);
+    expect(m.fields.find((f) => f.tag === 'Author')?.value).toBe('Prashant');
+    expect(m.fields.find((f) => f.tag === 'Title')?.value).toBe('Sunset');
+    expect(m.fields.find((f) => f.tag === 'Comment')).toBeUndefined();
+    // Overwriting replaces, not stacks.
+    const out2 = writePngText(out, { Author: 'PK' });
+    expect(readMetadata(out2).fields.filter((f) => f.tag === 'Author')).toHaveLength(1);
+    expect(readMetadata(out2).fields.find((f) => f.tag === 'Author')?.value).toBe('PK');
   });
 });

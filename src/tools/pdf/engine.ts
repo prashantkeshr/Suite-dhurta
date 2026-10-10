@@ -134,16 +134,27 @@ export interface EditableMeta {
   subject: string;
   keywords: string;
   creator: string;
+  /** "YYYY-MM-DD" or "YYYY-MM-DDTHH:MM"; empty = leave as now / unchanged. */
+  created?: string;
+  modified?: string;
 }
 
-/** Write the Info dictionary fields. Empty strings clear a field. */
+const parseDate = (s?: string): Date | undefined => {
+  if (!s) return undefined;
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? undefined : d;
+};
+
+/** Write the Info dictionary fields and (optionally) the creation/modification dates. */
 export async function setMetadata(doc: PDFDocument, meta: EditableMeta): Promise<Blob> {
   doc.setTitle(meta.title);
   doc.setAuthor(meta.author);
   doc.setSubject(meta.subject);
   doc.setKeywords(meta.keywords ? meta.keywords.split(',').map((k) => k.trim()).filter(Boolean) : []);
   doc.setCreator(meta.creator);
-  doc.setModificationDate(new Date());
+  const created = parseDate(meta.created);
+  if (created) doc.setCreationDate(created);
+  doc.setModificationDate(parseDate(meta.modified) ?? new Date());
   return finish(doc);
 }
 

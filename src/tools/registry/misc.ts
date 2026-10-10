@@ -351,6 +351,23 @@ export const calculatorTools = [
 
 export const fileTools = [
   defineTool({
+    id: 'metadata-editor',
+    name: 'Metadata Editor',
+    description: 'View, change and remove metadata in one place — photo EXIF (date taken, camera, GPS, author), PNG text fields, and PDF properties with creation/modification dates.',
+    category: 'files',
+    icon: 'FileSearch',
+    status: 'available',
+    inputTypes: ['image/jpeg', 'image/png', 'application/pdf', '.jpg', '.jpeg', '.png', '.pdf'],
+    outputTypes: ['image/jpeg', 'image/png', 'application/pdf'],
+    intents: ['edit', 'analyze'],
+    keywords: ['metadata editor', 'edit exif', 'change photo date', 'change date taken', 'edit metadata', 'change exif date', 'edit pdf date', 'exif editor', 'change metadata date'],
+    aliases: ['exif editor', 'change date taken on photo', 'edit photo metadata', 'metadata changer'],
+    actionLabel: 'Edit metadata',
+    limitations: ['Edits the metadata stored inside the file (EXIF date taken, PDF dates). The operating-system file date cannot be changed from a browser.', 'Supports JPEG, PNG and PDF now; MP3, MP4 and Office files are planned.'],
+    related: ['image-metadata', 'pdf-metadata', 'image-info'],
+    popular: true,
+  }),
+  defineTool({
     id: 'file-info',
     name: 'File Information',
     description: 'Detect the real file type from its contents, and view size, extension and SHA-256.',

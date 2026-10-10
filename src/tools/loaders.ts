@@ -37,7 +37,7 @@ export const TOOL_LOADERS: Record<string, Loader> = {
   'photopea': () => import('./image/PhotopeaTool'),
   'image-info': () => import('./image/ImageInfoTool'),
   'heic-converter': () => import('./image/HeicTool'),
-  'image-metadata': () => import('./image/ImageMetadataTool'),
+  'image-metadata': () => import('./image/MetadataEditorTool'),
   'image-to-base64': () => import('./image/ImageBase64Tool'),
   'base64-to-image': () => import('./image/ImageBase64Tool'),
 
@@ -47,6 +47,7 @@ export const TOOL_LOADERS: Record<string, Loader> = {
   'pdf-rotate': pdfPages,
   'pdf-delete-pages': pdfPages,
   'pdf-metadata': () => import('./pdf/PdfMetadataTool'),
+  'metadata-editor': () => import('./image/MetadataEditorTool'),
   'image-to-pdf': () => import('./pdf/ImageToPdfTool'),
   'pdf-to-image': () => import('./pdf/PdfToImageTool'),
   'pdf-to-text': () => import('./pdf/PdfToTextTool'),
