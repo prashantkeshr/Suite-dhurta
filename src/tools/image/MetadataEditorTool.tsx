@@ -12,16 +12,33 @@ import { outputName } from '@/utils/filename';
 import { readMetadata, stripMetadata, writePngText, type ImageMetadata } from './metadata';
 import { writeJpegExif, editableFromMeta, type EditableExif } from './exifWrite';
 import { loadPdf, readInfo, setMetadata, stripMetadata as stripPdf, type EditableMeta } from '@/tools/pdf/engine';
+import { readMp4Dates, setMp4Dates } from '@/tools/media/mp4meta';
+import { readMp3Tags, setMp3Tags, type Mp3Tags } from '@/tools/media/mp3meta';
+import { readOfficeMeta, setOfficeMeta, type OfficeMeta } from '@/tools/media/officeMeta';
 
-type Kind = 'jpeg' | 'png' | 'pdf' | 'other';
+type Kind = 'jpeg' | 'png' | 'pdf' | 'mp4' | 'mp3' | 'office' | 'other';
 
 function detectKind(file: File, head: Uint8Array): Kind {
+  const ext = (file.name.split('.').pop() ?? '').toLowerCase();
+  const at4 = String.fromCharCode(head[4] || 0, head[5] || 0, head[6] || 0, head[7] || 0);
   if (head[0] === 0xff && head[1] === 0xd8) return 'jpeg';
   if (head[0] === 0x89 && head[1] === 0x50) return 'png';
-  if (head[0] === 0x25 && head[1] === 0x50 && head[2] === 0x44 && head[3] === 0x46) return 'pdf';
-  if (/\.(pdf)$/i.test(file.name)) return 'pdf';
+  if ((head[0] === 0x25 && head[1] === 0x50 && head[2] === 0x44 && head[3] === 0x46) || ext === 'pdf') return 'pdf';
+  if (at4 === 'ftyp' || ['mp4', 'm4v', 'mov'].includes(ext)) return 'mp4';
+  if ((head[0] === 0x49 && head[1] === 0x44 && head[2] === 0x33) || ext === 'mp3' || (head[0] === 0xff && (head[1] & 0xe0) === 0xe0)) return 'mp3';
+  if (head[0] === 0x50 && head[1] === 0x4b && ['docx', 'xlsx', 'pptx'].includes(ext)) return 'office';
   return 'other';
 }
+
+/* ISO datetime <-> datetime-local (minutes). */
+const isoToLocal = (s?: string) => {
+  if (!s) return '';
+  const d = new Date(s);
+  if (isNaN(d.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+const localToDate = (s: string) => (s ? new Date(s) : undefined);
 
 /* ---------- date helpers (EXIF "YYYY:MM:DD HH:MM:SS" <-> datetime-local) ---------- */
 const exifToLocal = (s?: string) => {
@@ -210,6 +227,149 @@ function PdfEditor({ file, onDone }: { file: File; onDone: (r: { blob: Blob; nam
   );
 }
 
+/* ---------- MP4 / MOV editor ---------- */
+
+function Mp4Editor({ file, onDone }: { file: File; onDone: (r: { blob: Blob; name: string }) => void }) {
+  const [created, setCreated] = useState('');
+  const [modified, setModified] = useState('');
+  const [editable, setEditable] = useState<boolean | null>(null);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    void file.arrayBuffer().then((b) => {
+      const d = readMp4Dates(new Uint8Array(b));
+      if (!alive) return;
+      setEditable(d.editable);
+      setCreated(isoToLocal(d.created?.toISOString()));
+      setModified(isoToLocal(d.modified?.toISOString()));
+    });
+    return () => { alive = false; };
+  }, [file]);
+  const apply = async () => {
+    setBusy(true);
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const out = setMp4Dates(bytes, { created: localToDate(created), modified: localToDate(modified) });
+      onDone({ blob: new Blob([out as BlobPart], { type: file.type || 'video/mp4' }), name: outputName(file.name, 'edited', file.name.split('.').pop() || 'mp4') });
+    } catch {
+      toast.error('Could not write the video dates.');
+    } finally {
+      setBusy(false);
+    }
+  };
+  if (editable === null) return <Card className="p-4 text-sm text-muted">Reading video...</Card>;
+  if (!editable) return <Card className="p-4 text-sm text-muted">This video has no editable date atoms.</Card>;
+  return (
+    <Card className="space-y-3 p-4">
+      <h2 className="text-sm font-semibold">Edit video dates</h2>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Row label="Media created"><input type="datetime-local" className="input" value={created} onChange={(e) => setCreated(e.target.value)} /></Row>
+        <Row label="Media modified"><input type="datetime-local" className="input" value={modified} onChange={(e) => setModified(e.target.value)} /></Row>
+      </div>
+      <Button variant="primary" icon={<Save size={16} />} loading={busy} onClick={apply}>Save changes to a new video</Button>
+      <p className="text-xs text-muted">Changes the media created/modified dates stored inside the file (mvhd/tkhd/mdhd). The video is not re-encoded. The operating-system file date cannot be set from a browser.</p>
+    </Card>
+  );
+}
+
+/* ---------- MP3 editor ---------- */
+
+function Mp3Editor({ file, onDone }: { file: File; onDone: (r: { blob: Blob; name: string }) => void }) {
+  const [tags, setTags] = useState<Mp3Tags | null>(null);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    void file.arrayBuffer().then((b) => alive && setTags(readMp3Tags(new Uint8Array(b)).tags));
+    return () => { alive = false; };
+  }, [file]);
+  const apply = async () => {
+    if (!tags) return;
+    setBusy(true);
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      onDone({ blob: new Blob([setMp3Tags(bytes, tags) as BlobPart], { type: 'audio/mpeg' }), name: outputName(file.name, 'edited', 'mp3') });
+    } catch {
+      toast.error('Could not write the tags.');
+    } finally {
+      setBusy(false);
+    }
+  };
+  if (!tags) return <Card className="p-4 text-sm text-muted">Reading audio...</Card>;
+  const F = (label: string, key: keyof Mp3Tags) => (
+    <Row label={label}><input className="input" value={tags[key]} onChange={(e) => setTags({ ...tags, [key]: e.target.value })} /></Row>
+  );
+  return (
+    <Card className="space-y-3 p-4">
+      <h2 className="text-sm font-semibold">Edit song tags (ID3)</h2>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {F('Title', 'title')}
+        {F('Artist', 'artist')}
+        {F('Album', 'album')}
+        {F('Year', 'year')}
+        {F('Track no.', 'track')}
+        {F('Genre', 'genre')}
+      </div>
+      {F('Comment', 'comment')}
+      <Button variant="primary" icon={<Save size={16} />} loading={busy} onClick={apply}>Save changes to a new MP3</Button>
+      <p className="text-xs text-muted">Writes a standard ID3v2.4 tag. The audio is untouched.</p>
+    </Card>
+  );
+}
+
+/* ---------- Office editor ---------- */
+
+function OfficeEditor({ file, onDone }: { file: File; onDone: (r: { blob: Blob; name: string }) => void }) {
+  const [meta, setMeta] = useState<OfficeMeta | null>(null);
+  const [editable, setEditable] = useState<boolean | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [created, setCreated] = useState('');
+  const [modified, setModified] = useState('');
+  useEffect(() => {
+    let alive = true;
+    void file.arrayBuffer().then((b) => {
+      const r = readOfficeMeta(new Uint8Array(b));
+      if (!alive) return;
+      setEditable(r.editable);
+      setMeta(r.meta);
+      setCreated(isoToLocal(r.meta.created));
+      setModified(isoToLocal(r.meta.modified));
+    });
+    return () => { alive = false; };
+  }, [file]);
+  const apply = async () => {
+    if (!meta) return;
+    setBusy(true);
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const iso = (local: string) => (local ? new Date(local).toISOString().replace(/\.\d{3}Z$/, 'Z') : '');
+      const out = setOfficeMeta(bytes, { ...meta, created: iso(created), modified: iso(modified) });
+      onDone({ blob: new Blob([out as BlobPart], { type: file.type }), name: outputName(file.name, 'edited', file.name.split('.').pop() || 'docx') });
+    } catch {
+      toast.error('Could not save the document.');
+    } finally {
+      setBusy(false);
+    }
+  };
+  if (editable === null) return <Card className="p-4 text-sm text-muted">Reading document...</Card>;
+  if (!editable || !meta) return <Card className="p-4 text-sm text-muted">This file has no editable core properties.</Card>;
+  const f = (k: keyof OfficeMeta) => (e: React.ChangeEvent<HTMLInputElement>) => setMeta({ ...meta, [k]: e.target.value });
+  return (
+    <Card className="space-y-3 p-4">
+      <h2 className="text-sm font-semibold">Edit document properties</h2>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Row label="Title"><input className="input" value={meta.title} onChange={f('title')} /></Row>
+        <Row label="Author"><input className="input" value={meta.author} onChange={f('author')} /></Row>
+        <Row label="Subject"><input className="input" value={meta.subject} onChange={f('subject')} /></Row>
+        <Row label="Keywords"><input className="input" value={meta.keywords} onChange={f('keywords')} /></Row>
+        <Row label="Created date"><input type="datetime-local" className="input" value={created} onChange={(e) => setCreated(e.target.value)} /></Row>
+        <Row label="Modified date"><input type="datetime-local" className="input" value={modified} onChange={(e) => setModified(e.target.value)} /></Row>
+      </div>
+      <Button variant="primary" icon={<Save size={16} />} loading={busy} onClick={apply}>Save properties</Button>
+      <p className="text-xs text-muted">Edits the created/modified dates stored inside the .docx/.xlsx/.pptx. The operating-system file date cannot be set from a browser.</p>
+    </Card>
+  );
+}
+
 /* ---------- tool ---------- */
 
 export default function MetadataEditorTool({ initialFiles }: { tool: ToolDefinition; initialFiles?: File[] }) {
@@ -245,7 +405,7 @@ export default function MetadataEditorTool({ initialFiles }: { tool: ToolDefinit
 
   return (
     <div className="space-y-4">
-      <FileDropzone onFiles={open} multiple={false} acceptLabel="a photo (JPEG/PNG) or a PDF" compact={!!file} />
+      <FileDropzone onFiles={open} multiple={false} acceptLabel="a photo, PDF, video (MP4), MP3 or Office file" compact={!!file} />
       {file && (
         <div className="grid gap-4 lg:grid-cols-[300px_1fr]">
           <div className="space-y-3">
@@ -269,9 +429,12 @@ export default function MetadataEditorTool({ initialFiles }: { tool: ToolDefinit
             {kind === 'jpeg' && meta && <JpegEditor file={file} meta={meta} onDone={setResult} />}
             {kind === 'png' && meta && <PngEditor file={file} meta={meta} onDone={setResult} />}
             {kind === 'pdf' && <PdfEditor file={file} onDone={setResult} />}
+            {kind === 'mp4' && <Mp4Editor file={file} onDone={setResult} />}
+            {kind === 'mp3' && <Mp3Editor file={file} onDone={setResult} />}
+            {kind === 'office' && <OfficeEditor file={file} onDone={setResult} />}
             {kind === 'other' && (
               <Card className="p-4">
-                <p className="flex items-center gap-2 text-sm text-muted"><Info size={16} /> Editing metadata for this file type isn’t supported yet. Supported: JPEG and PNG photos, and PDF. MP3, MP4 and Office files are coming.</p>
+                <p className="flex items-center gap-2 text-sm text-muted"><Info size={16} /> Editing metadata for this file type isn’t supported yet. Supported: JPEG/PNG photos, PDF, MP4/MOV video, MP3 audio, and Office files (.docx/.xlsx/.pptx).</p>
               </Card>
             )}
 
